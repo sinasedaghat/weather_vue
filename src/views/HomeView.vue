@@ -5,5 +5,6 @@ import TheWelcome from '../components/TheWelcome.vue'
 <template>
   <main>
     <TheWelcome />
+    <v-btn color="primary">test</v-btn>
   </main>
 </template>

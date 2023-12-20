@@ -6,6 +6,10 @@ import "@mdi/font/css/materialdesignicons.css";
 import * as components from "vuetify/components";
 import * as directives from "vuetify/directives";
 
+import { fa } from 'vuetify/locale'
+// import xx from '@/locales/en'
+// import fa from '@/locales/fa'
+
 const lightTheme: ThemeDefinition = {
   dark: false,
   colors: {
@@ -35,6 +39,12 @@ const darkTheme: ThemeDefinition = {
 export default createVuetify({
   components,
   directives,
+  locale: {
+    locale: 'fa',
+    fallback: 'en',
+    messages: { fa },
+    rtl: {fa: true},
+  },
   theme: {
     defaultTheme: "light",
     themes: {

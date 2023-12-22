@@ -13,6 +13,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url))
-    }
+    },
+    extensions: ['.ts', '.js', '.vue', '.json', '.env']
   }
 })

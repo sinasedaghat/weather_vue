@@ -5,6 +5,13 @@ import "@mdi/font/css/materialdesignicons.css";
 
 import * as components from "vuetify/components";
 import * as directives from "vuetify/directives";
+import i18n from './i18n'
+import { createVueI18nAdapter } from 'vuetify/locale/adapters/vue-i18n'
+// import { fa } from 'vuetify/locale'
+import { useI18n } from 'vue-i18n'
+
+// import xx from '@/locales/en'
+// import fa from '@/locales/fa'
 
 const lightTheme: ThemeDefinition = {
   dark: false,
@@ -35,6 +42,18 @@ const darkTheme: ThemeDefinition = {
 export default createVuetify({
   components,
   directives,
+  // locale: {
+  //   locale: 'fa',
+  //   fallback: 'en',
+  //   messages: { fa },
+  //   rtl: {fa: true},
+  // },
+  locale: {
+    locale: 'fa',
+    fallback: 'en',
+    rtl: {fa: true},
+    adapter: createVueI18nAdapter({ i18n, useI18n }),
+  },
   theme: {
     defaultTheme: "light",
     themes: {

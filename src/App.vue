@@ -1,26 +1,109 @@
 <script setup lang="ts">
-import { RouterLink, RouterView } from 'vue-router'
-import HelloWorld from './components/HelloWorld.vue'
+// import { RouterLink, RouterView } from 'vue-router'
+// import HelloWorld from './components/HelloWorld.vue'
+import { useTheme, useLocale } from 'vuetify';
+const theme = useTheme()
+const changeTheme = () => {
+  console.log('changeTheme')
+  theme.global.name.value = theme.global.current.value.dark ? 'light' : 'dark'
+}
+
+import { useI18n } from 'vue-i18n'
+const i18n = useI18n()
+const { current } = useLocale()
+const changeLang = () => {
+  // const { t, locale } = useI18n({ useScope: 'global' }
+  i18n.locale.value = i18n.locale.value == 'en' ? 'fa' : 'en'
+  current.value = i18n.locale.value
+  console.log('changeLang', i18n.locale.value)
+  console.log(' current.value',  current.value)
+}
+
+
+
+
+
+
+
+
+
 </script>
 
 <template>
-  <header>
-    <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="125" height="125" />
+   <v-row align="center" justify="center">
+    <v-col>
+      <div class="d-flex justify-center ga-2">
+        <v-chip>
+          Default
+        </v-chip>
+    
+        <v-chip color="primary">
+          Primary
+        </v-chip>
+    
+        <v-chip color="secondary">
+          Secondary
+        </v-chip>
+    
+        <v-chip color="red">
+          Red
+        </v-chip>
+    
+        <v-chip color="green">
+          Green
+        </v-chip>
+    
+        <v-btn @click="changeLang">change Lang</v-btn>
+      </div>
+    </v-col>
+   </v-row>
+  <!-- <v-row align="center" justify="center" class="mt-5">
+    <v-col cols="auto">
+      
+    </v-col>
+    <v-col cols="auto">
+      {{ $t('HI') }}
+    </v-col>
+  </v-row> -->
+  <v-row align="center" justify="center">
+    <v-col>
+      <div class="d-flex justify-center ga-2 mt-2">
+        <v-chip variant="flat">
+          Default flat
+        </v-chip>
 
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
+        <v-chip variant="flat" color="primary">
+          Primary flat
+        </v-chip>
 
-      <nav>
-        <RouterLink to="/">Home</RouterLink>
-        <RouterLink to="/about">About</RouterLink>
-      </nav>
-    </div>
-  </header>
+        <v-chip variant="flat" color="secondary">
+          Secondary flat
+        </v-chip>
 
-  <RouterView />
+        <v-chip variant="flat" color="red">
+          Red flat
+        </v-chip>
+
+        <v-chip variant="flat" color="green">
+          Green flat
+        </v-chip>
+
+        <v-btn @click="changeTheme">change theme</v-btn>
+      </div>
+    </v-col>  
+  </v-row>
+
+
+  <v-row align="center" justify="start" class="mt-5">
+    <v-col cols="auto">
+      {{ $t('HI') }}
+    </v-col>
+  </v-row>
+
+
 </template>
 
-<style scoped>
+<!-- <style scoped>
 header {
   line-height: 1.5;
   max-height: 100vh;
@@ -82,4 +165,4 @@ nav a:first-of-type {
     margin-top: 1rem;
   }
 }
-</style>
+</style> -->

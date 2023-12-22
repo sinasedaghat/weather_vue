@@ -1,4 +1,93 @@
+// {
+//   "files": [],
+//   "references": [
+//     {
+//       "path": "./tsconfig.node.json"
+//     },
+//     {
+//       "path": "./tsconfig.app.json"
+//     }
+//   ]
+// }
+
+//NEW CONF
 {
+  "compilerOptions": {
+    "target": "ESNext",
+    // will allow to use js files
+    "baseUrl": "./",
+    "types": [
+      "webpack-env",
+      "vuetify",
+      "vite/client",
+      "node",
+      "vue",
+      "vue-router"
+    ],
+    "allowJs": true,
+    // Generate d.ts files
+    "declaration": true,
+    // This compiler run should
+    // only output d.ts files
+    "emitDeclarationOnly": true,
+    //will check js files
+    "checkJs": true,
+    // see type script codes instead js in source/developer tools
+    "sourceMap": true,
+    // compiled files will storaged in ./dist
+    // Types should go into this directory.
+    // Removing this would place the .d.ts files
+    // next to the .js files
+    "outDir": "./dist",
+    // main ts files location for compile
+    "rootDir": "./src",
+    //will show us just errors in ts files without compling completely
+    // its ok in development mode
+    // "noEmit": true,
+    //If there is an error in a file, no file will be compiled
+    "noEmitOnError": true,
+    //will remove comments in compiled js files
+    "removeComments": true,
+    //hard check on types and null
+    "strict": true,
+    //dont define local variables and not use
+    "noUnusedLocals": true,
+    //dont define params in functions variables and not use
+    "noUnusedParameters": true,
+    // function must return something always or dont return always
+    "noImplicitReturns": true,
+    // go to js file when using IDE functions like
+    // "Go to Definition" in VSCode
+    "declarationMap": true,
+    //  "lib": ["DOM", "DOM.Iterable", "ScriptHost", "ES6" , ]
+    "importHelpers": true,
+    "module": "esnext",
+    "moduleResolution": "node",
+    // allows you to write an import like: ts. import React from "react"; instead of: ts.
+
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "paths": {
+      //we can add another options
+      "@/*": [
+        "src/*"
+      ],
+      "App/*": [
+        "src/*"
+      ],
+      "Components/*": [
+        "src/components/*"
+      ]
+    },
+    "typeRoots": [
+      "node_modules/@types",
+      "./src/types"
+    ]
+  },
+  "exclude": [
+    "node_modules",
+    "dist"
+  ],
   "files": [],
   "references": [
     {
@@ -9,3 +98,4 @@
     }
   ]
 }
+

@@ -3,6 +3,7 @@ import { createI18n } from 'vue-i18n'
 import en from '@/locales/en'
 import fa from '@/locales/fa'
 
+
 // const i18n = VueI18n.createI18n({
 // const i18n = createI18n({
 export default createI18n({
@@ -18,6 +19,7 @@ export default createI18n({
     // 'fa': {
     //   "HI": "سلام"
     // }
-  }
+  },
+  rtl: {fa: true},
 })
 // export default i18n

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // import { RouterLink, RouterView } from 'vue-router'
 // import HelloWorld from './components/HelloWorld.vue'
-import { useTheme } from 'vuetify';
+import { useTheme, useLocale } from 'vuetify';
 const theme = useTheme()
 const changeTheme = () => {
   console.log('changeTheme')
@@ -10,11 +10,21 @@ const changeTheme = () => {
 
 import { useI18n } from 'vue-i18n'
 const i18n = useI18n()
+const { current } = useLocale()
 const changeLang = () => {
   // const { t, locale } = useI18n({ useScope: 'global' }
-  console.log('changeLang', i18n.locale.value)
   i18n.locale.value = i18n.locale.value == 'en' ? 'fa' : 'en'
+  current.value = i18n.locale.value
+  console.log('changeLang', i18n.locale.value)
+  console.log(' current.value',  current.value)
 }
+
+
+
+
+
+
+
 
 
 </script>
@@ -89,6 +99,8 @@ const changeLang = () => {
       {{ $t('HI') }}
     </v-col>
   </v-row>
+
+
 </template>
 
 <!-- <style scoped>

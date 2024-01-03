@@ -20,10 +20,11 @@ const changeLang = () => {
 }
 
 
+import testAPI from '@/services/test'
 
-
-
-
+const callApi = () => {
+  testAPI.getTemp('london')
+}
 
 
 
@@ -99,6 +100,13 @@ const changeLang = () => {
       {{ $t('HI') }}
     </v-col>
   </v-row>
+
+  <v-row align="center" justify="start" class="mt-5">
+    <v-col cols="auto">
+      <v-btn @click="callApi">call API</v-btn>
+    </v-col>
+  </v-row>
+
 
 
 </template>

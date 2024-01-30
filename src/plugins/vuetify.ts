@@ -22,34 +22,32 @@ const brackpoints: DisplayThresholds = {
 const lightTheme: ThemeDefinition = {
   dark: false,
   colors: {
-    primary: "#d35400",
-    secondary: "#8e44ad",
-    background: "#ecf0f1",
-    error: "#c0392b",
-    info: "#2980b9",
-    success: "#27ae60",
-    warning: "#f1c40f",
+    primary: "#0167D8",
+    secondary: "#9747FF",
+    // background: "#ecf0f1",
+    error: "#E40047",
+    info: "#ADD4FF",
+    success: "#04A204",
+    warning: "#FFFD28",
   },
+  // variables: {
+  //   'border-color': '#ff0000',
+  // }
 };
 
-const darkTheme: ThemeDefinition = {
-  dark: true,
-  colors: {
-    primary: "#d35400",
-    secondary: "#8e44ad",
-    background: "#2f3640",
-    error: "#c0392b",
-    info: "#2980b9",
-    success: "#27ae60",
-    warning: "#f1c40f",
-  },
-};
-// #0167d8 primary
-// #add4ff secondary
-// #f9f871 warning
-// #cc254e #ff647f #e40047 error
-// #97b200 #008000 success
-// #444655 text
+// const darkTheme: ThemeDefinition = {
+//   dark: true,
+//   colors: {
+//     primary: "#d35400",
+//     secondary: "#8e44ad",
+//     background: "#2f3640",
+//     error: "#c0392b",
+//     info: "#2980b9",
+//     success: "#27ae60",
+//     warning: "#f1c40f",
+//   },
+// };
+
 
 export default createVuetify({
   components,
@@ -65,7 +63,7 @@ export default createVuetify({
     defaultTheme: "light",
     themes: {
       light: lightTheme,
-      dark: darkTheme,
+      // dark: darkTheme,
     },
   },
 });

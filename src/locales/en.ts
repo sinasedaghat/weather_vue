@@ -1,3 +1,4 @@
 export default {
-  'HI': 'Hello'
+  'HI': 'Hello',
+  ENTER_CITY_NAME: "Enter city name ..."
 }

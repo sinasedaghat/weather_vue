@@ -8,6 +8,7 @@ pnpm-debug.log*
 lerna-debug.log*
 
 node_modules
+ignore_assets
 .DS_Store
 .env
 dist

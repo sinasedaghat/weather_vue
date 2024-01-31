@@ -1,8 +1,17 @@
-// VITE_WEATHER_BASE_URL
-// VITE_WEATHER_TOKEN
+import http from "@/plugins/http"
 
-// {{VITE_WEATHER_BASE_URL}}weather?q={{CITY}}&APPID={{VITE_WEATHER_TOKEN}}
+class WeatherAPI {
+  private _path = `${import.meta.env.VITE_WEATHER_BASE_URL}weather`
 
-// import http from '@/plugins/http'
+  getWeather(city: string) {
+    return http.get(this._path, {
+      params: {
+        q: city,
+        units: 'metric',
+        APPID: import.meta.env.VITE_WEATHER_TOKEN
+      }
+    })
+  }
+}
 
-// const url = import.meta.env.VITE_WEATHER_BASE_URL
+export default new WeatherAPI()

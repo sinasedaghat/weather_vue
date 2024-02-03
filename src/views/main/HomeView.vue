@@ -2,36 +2,71 @@
 import { ref, type Ref } from 'vue'
 import { useLocale } from 'vuetify'
 import weatherAPI from '@/services/weather'
+import pollutionAPI from '@/services/pollution'
+import imageAPI from '@/services/image'
 import weatherModel from '@/models/weather'
+import pollutionModel from '@/models/pollution'
 import { type ExpandedWeather } from '@/types/weather'
+import { type ExpandedPollution  } from '@/types/pollution'
 import sky from '@/assets/images/cloud-background.mp4'
 
   const { t } = useLocale()
-  
-
   const valid: Ref<boolean> = ref(false)
   const city: Ref<string> = ref('')
   const weather: Ref<ExpandedWeather | {}> = ref({})
+  const pollution: Ref< ExpandedPollution| {}> = ref({})
   
   const required = (v: string) => {
     return !!v || t('FIELD_IS_REQUIRED')
   }
 
+  const getWeather = () => {
+    weatherAPI.getWeather(city)
+    .then(async (response) => {
+      weather.value = await {...new weatherModel(response.data).expanded()}
+    })
+    .catch((error) => {
+      console.log(error)
+    })
+    .finally(() => {
+      console.log('finally')
+    })
+  }
+
+  const getPollution = () => {
+    pollutionAPI.getPollution(city)
+    .then(async (response) => {
+      pollution.value = await {...new pollutionModel(response.data.data).expanded()}
+    })
+    .catch((error) => {
+      console.log(error)
+    })
+    .finally(() => {
+      console.log('finally')
+    })
+  }
+
+  const getImage = () => {
+    imageAPI.getImage(city)
+    .then(async (response) => {
+      console.log(response.data)
+      // let x = new weatherModel(response.data)
+      // console.log('getPollution', response.data)
+      // pollution.value = await {...new pollutionModel(response.data.data).expanded()}
+    })
+    .catch((error) => {
+      console.log(error)
+    })
+    .finally(() => {
+      console.log('finally')
+    })
+  }
+
   const search = () => {
     console.log(city.value)
-    weatherAPI.getWeather(city.value)
-      .then(async (response) => {
-        console.log(response.data)
-        // let x = new weatherModel(response.data)
-        // console.log('xxxxxx', x.expanded())
-        weather.value = await {...new weatherModel(response.data).expanded()}
-      })
-      .catch((error) => {
-        console.log(error)
-      })
-      .finally(() => {
-        console.log('finally')
-      })
+    getWeather()
+    getPollution()
+    getImage()
   }
 
   
@@ -92,11 +127,13 @@ import sky from '@/assets/images/cloud-background.mp4'
       class="mx-auto mt-16" 
       variant="flat"
       width="600px" 
-      height="100px"
+      min-height="100px"
     >
       {{ weather }}
   
-  
+      <hr>
+
+      {{ pollution }}
   </v-card>
   </v-container>
 </template>

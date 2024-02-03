@@ -1,14 +1,27 @@
-export interface ExpandedWeather {
-  // id: number
-  // code: number
-  // timezone: number
-  name: string
-  country: string
+type Temp = {
+  temp: number
+  feels_like: number
+  temp_min: number
+  temp_max: number
 }
 
+type Wind = {
+  speed: number
+}
 
-
-
+export interface ExpandedWeather {
+  id: number
+  city_id: number
+  // code: number
+  timezone: number
+  name: string
+  country: string
+  main: string
+  description: string
+  icon: string
+  temp: Temp & {[k: string]: number}
+  wind: Wind
+}
 
 // let weatherOBJ: Weather = {
   //   id: data.value.weather[0].id,

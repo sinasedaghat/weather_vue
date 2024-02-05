@@ -13,8 +13,14 @@ import sky from '@/assets/images/cloud-background.mp4'
   const { t } = useLocale()
   const valid: Ref<boolean> = ref(false)
   const city: Ref<string> = ref('')
-  const weather: Ref<ExpandedWeather | {}> = ref({})
+  const weather: Ref<ExpandedWeather | null> = ref(null)
   const pollution: Ref< ExpandedPollution| {}> = ref({})
+  const image: Ref<string> = ref('')
+
+
+  const show = ref(false)
+
+
   
   const required = (v: string) => {
     return !!v || t('FIELD_IS_REQUIRED')
@@ -49,10 +55,10 @@ import sky from '@/assets/images/cloud-background.mp4'
   const getImage = () => {
     imageAPI.getImage(city)
     .then(async (response) => {
-      console.log(response.data)
-      // let x = new weatherModel(response.data)
-      // console.log('getPollution', response.data)
-      // pollution.value = await {...new pollutionModel(response.data.data).expanded()}
+      // console.log(response.data)
+      const xxx = Math. floor(Math. random()*10) + 1
+      console.log(xxx)
+      image.value = response.data.images_results[xxx].original
     })
     .catch((error) => {
       console.log(error)
@@ -63,7 +69,7 @@ import sky from '@/assets/images/cloud-background.mp4'
   }
 
   const search = () => {
-    console.log(city.value)
+    // console.log(city.value)
     getWeather()
     getPollution()
     getImage()
@@ -73,7 +79,7 @@ import sky from '@/assets/images/cloud-background.mp4'
 </script>
 
 <template>
-  <v-container fluid style="border: 2px solid #fff;">
+  <v-container>
     <!-- background -->
     <video autoplay loop muted class="video-background ">
       <source :src="sky" type="video/webm" />
@@ -81,7 +87,6 @@ import sky from '@/assets/images/cloud-background.mp4'
     </video>
     <!-- input card -->
     <v-card
-      style="border: 2px solid #fff;"
       class="mx-auto mt-16" 
       variant="flat"
       color="#00000000"
@@ -122,18 +127,79 @@ import sky from '@/assets/images/cloud-background.mp4'
     </v-card>
 
 
+  <v-card
+    class="mx-auto"
+    max-width="550"
+  >
+    <v-img
+      :src="image"
+      height="320px"
+      cover
+    ></v-img>
+
+    <v-card-title>
+      {{ weather?.location }}
+    </v-card-title>
+
+    <v-card-subtitle>
+      1,000 miles of wonder
+    </v-card-subtitle>
+
+    <v-card-actions>
+      <v-btn
+        color="orange-lighten-2"
+        variant="text"
+      >
+        Explore
+      </v-btn>
+
+      <v-spacer></v-spacer>
+
+      <v-btn
+        :icon="show ? 'mdi-chevron-up' : 'mdi-chevron-down'"
+        @click="show = !show"
+      ></v-btn>
+    </v-card-actions>
+
+    <v-expand-transition>
+      <div v-show="show">
+        <v-divider></v-divider>
+
+        <v-card-text>
+          I'm a thing. But, like most politicians, he promised more than he could deliver. You won't have time for sleeping, soldier, not with all the bed making you'll be doing. Then we'll go with that data file! Hey, you add a one and two zeros to that or we walk! You're going to do his laundry? I've got to find a way to escape.
+        </v-card-text>
+      </div>
+    </v-expand-transition>
+  </v-card>
+
+
     <v-card
       style="border: 2px solid #fff;"
       class="mx-auto mt-16" 
+      rounded="xl"
       variant="flat"
-      width="600px" 
-      min-height="100px"
+      width="900px"
     >
+    <v-avatar class="mx-5" size="200">
+      <!-- <v-img :src="imageOrigin" alt="Cloud Logo" /> -->
+      <v-img :src="weather?.icon" alt="Cloud Logo" />
+    </v-avatar>
       {{ weather }}
   
       <hr>
 
       {{ pollution }}
+
+      <hr>
+
+      <v-avatar
+        style="border: 2px red solid;"
+        color="grey"
+        size="150"
+        rounded="0"
+      >
+        <v-img cover :src="image"></v-img>
+      </v-avatar>
   </v-card>
   </v-container>
 </template>

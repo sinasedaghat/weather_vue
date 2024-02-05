@@ -12,10 +12,11 @@ type Wind = {
 export interface ExpandedWeather {
   id: number
   city_id: number
-  // code: number
+  code?: number
   timezone: number
   name: string
   country: string
+  location: string
   main: string
   description: string
   icon: string

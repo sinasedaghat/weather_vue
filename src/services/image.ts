@@ -10,7 +10,7 @@ class ImageAPI extends service {
       params: {
         engine: 'google_images',
         lang: 'ar',
-        q: `${toValue(city)} landmark HD`,
+        q: `${toValue(city)} landmark`, // HD
         apikey: import.meta.env.VITE_IMAGE_TOKEN
       }
     })

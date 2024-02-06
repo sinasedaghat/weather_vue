@@ -23,10 +23,10 @@ class WeatherModels {
       description: this._data.weather[0].description,
       icon: `https://openweathermap.org/img/wn/${this._data.weather[0].icon}@4x.png`, // this._data.weather[0].icon, // https://openweathermap.org/img/wn/this._data.weather[0].icon@4x.png
       temp: {
-        temp: this._data.main.temp,
-        feels_like: this._data.main.feels_like,
-        temp_min: this._data.main.temp_min,
-        temp_max: this._data.main.temp_max,
+        temp: Math.round(this._data.main.temp),
+        feels_like: Math.round(this._data.main.feels_like),
+        temp_min: Math.round(this._data.main.temp_min),
+        temp_max: Math.round(this._data.main.temp_max),
       },
       wind: {
         speed: this._data.wind.speed

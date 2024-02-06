@@ -8,13 +8,14 @@ import weatherModel from '@/models/weather'
 import pollutionModel from '@/models/pollution'
 import { type ExpandedWeather } from '@/types/weather'
 import { type ExpandedPollution  } from '@/types/pollution'
+import { APLDescription } from '@/data/air_pollution_level'
 import sky from '@/assets/images/cloud-background.mp4'
 
   const { t } = useLocale()
   const valid: Ref<boolean> = ref(false)
   const city: Ref<string> = ref('')
   const weather: Ref<ExpandedWeather | null> = ref(null)
-  const pollution: Ref< ExpandedPollution| {}> = ref({})
+  const pollution: Ref< ExpandedPollution| null> = ref(null)
   const image: Ref<string> = ref('')
 
 
@@ -56,9 +57,8 @@ import sky from '@/assets/images/cloud-background.mp4'
     imageAPI.getImage(city)
     .then(async (response) => {
       // console.log(response.data)
-      const xxx = Math. floor(Math. random()*10) + 1
-      console.log(xxx)
-      image.value = response.data.images_results[xxx].original
+      // const xxx = 
+      image.value = response.data.images_results[Math.floor(Math. random()*5) + 1].original
     })
     .catch((error) => {
       console.log(error)
@@ -129,21 +129,109 @@ import sky from '@/assets/images/cloud-background.mp4'
 
   <v-card
     class="mx-auto"
-    max-width="550"
+    max-width="600"
   >
     <v-img
       :src="image"
       height="320px"
+      gradient="to bottom, rgba(0,0,0,0), rgba(0,0,0,1)"
+      class="align-end text-white"
       cover
-    ></v-img>
+    >
+      <v-card-title>
+        <v-row align="start" justify="space-between" dense>
+          <!-- city location -->
+          <v-col class="ma-0 pa-0" cols="12">
+            <span class="text-h4" v-text="weather?.location" />
+          </v-col>
+          <!-- weather description -->
+          <v-col class="ma-0 pa-0" cols="12">
+            <v-tooltip 
+              :text="t('WEATHER_TOOLTIP')"
+              location="bottom"
+            >
+              <template v-slot:activator="{ props }">
+                <v-icon v-bind="props" size="x-small" color="#FFF" start>mdi-weather-cloudy</v-icon>
+              </template>
+            </v-tooltip>
+            <span 
+              class="text-subtitle-1" 
+              v-html="`${weather?.main} &quot;${weather?.description}&quot;`" 
+            />
+          </v-col>
+          <!-- pollution level -->
+          <v-col class="ma-0 pa-0" cols="12">
+            <v-tooltip 
+              :text="t('POLLUTION_LEVEL_TOOLTIP')"
+              location="bottom"
+            >
+              <template v-slot:activator="{ props }">
+                <v-icon v-bind="props" size="x-small" color="#FFF" start>mdi-smoke</v-icon>
+              </template>
+            </v-tooltip>
+            <span 
+              class="text-subtitle-1" 
+              v-html="`${t(pollution?.level ?? '')}`" 
+            />
+          </v-col>
+        </v-row>
+      </v-card-title>
+    </v-img>
+    <v-card-text>
+      <v-row align="start" justify="start" dense>
+        <v-col class="ma-0 pa-0" cols="12">
+          <v-avatar size="60" class="mt-n3 me-n2">
+            <v-img :src="weather?.icon" alt="Cloud Logo" />
+          </v-avatar>
+          <span class="text-h4">
+            {{ weather?.temp?.temp }}°C
+          </span>
+        </v-col>
+        <v-col class="ma-0 pa-0 ms-3" cols="12">
+          <!-- <span class="text-subtitle-2">
+            {{ t('TEMP_FEELS_LIKE') }} {{ weather?.temp?.feels_like }} °C
+          </span> -->
+          <!-- <span class="text-subtitle-2 ms-1">
+            {{ t('TEMP_MAX') }} {{ weather?.temp?.temp_max }} °C
+          </span>
+          <span class="text-subtitle-2 ms-1">
+            {{ t('TEMP_MIN') }} {{ weather?.temp?.temp_min }} °C
+          </span> -->
+          The air temperature will be {{ weather?.temp?.feels_like }}°C feels like, the maximum will be {{ weather?.temp?.temp_max }}°C and the minimum will be {{ weather?.temp?.temp_min }}°C.
+          <!-- {{ $t(APLDescription[pollution?.level || 'EMPTY'].desc: '') }} -->
+          <!-- Feels like {{ weather?.temp?.feels_like }}°C, the high will be {{ weather?.temp?.temp_min }}°C, the low will be {{ weather?.temp?.temp_max }}°C. -->
+        </v-col>
+      </v-row>
+    </v-card-text>
 
-    <v-card-title>
+
+
+
+
+      <!-- weather -->
+      <!-- <v-row style="border: 1px solid #fff;"  align="start" justify="start"> -->
+        <!-- icon -->
+        <!-- <v-col style="border: 1px solid #fff;" cols="12" class="mt-n7 ms-n4">
+          <v-avatar size="50">
+            <v-img style="display: inline-block;" width="50" height="50" :src="weather?.icon" alt="Cloud Logo" />
+          </v-avatar>
+          <h4 style="display: inline-block;">12 C</h4>
+        </v-col> -->
+        <!-- location -->
+        <!-- <v-col cols="auto">
+          <span 
+            class="text-subtitle-1" 
+            v-html="`${weather?.main} <small>&quot;${weather?.description}&quot;</small>`" 
+          />
+        </v-col> -->
+      <!-- </v-row> -->
+    
+
+    <!-- <v-card-title>
       {{ weather?.location }}
-    </v-card-title>
+    </v-card-title> -->
 
-    <v-card-subtitle>
-      1,000 miles of wonder
-    </v-card-subtitle>
+
 
     <v-card-actions>
       <v-btn

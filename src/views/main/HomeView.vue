@@ -8,7 +8,7 @@ import weatherModel from '@/models/weather'
 import pollutionModel from '@/models/pollution'
 import { type ExpandedWeather } from '@/types/weather'
 import { type ExpandedPollution  } from '@/types/pollution'
-import { APLDescription } from '@/data/air_pollution_level'
+// import { APLDescription } from '@/data/air_pollution_level'
 import sky from '@/assets/images/cloud-background.mp4'
 
   const { t } = useLocale()
@@ -177,9 +177,12 @@ import sky from '@/assets/images/cloud-background.mp4'
         </v-row>
       </v-card-title>
     </v-img>
+
+
     <v-card-text>
-      <v-row align="start" justify="start" dense>
-        <v-col class="ma-0 pa-0" cols="12">
+      <v-row class="ma-0 pa-0" align="start" justify="start" dense>
+        <!-- weather -->
+        <v-col class="ma-0 pa-0" cols="12" md="6">
           <v-avatar size="60" class="mt-n3 me-n2">
             <v-img :src="weather?.icon" alt="Cloud Logo" />
           </v-avatar>
@@ -187,21 +190,76 @@ import sky from '@/assets/images/cloud-background.mp4'
             {{ weather?.temp?.temp }}°C
           </span>
         </v-col>
-        <v-col class="ma-0 pa-0 ms-3" cols="12">
-          <!-- <span class="text-subtitle-2">
-            {{ t('TEMP_FEELS_LIKE') }} {{ weather?.temp?.feels_like }} °C
-          </span> -->
-          <!-- <span class="text-subtitle-2 ms-1">
-            {{ t('TEMP_MAX') }} {{ weather?.temp?.temp_max }} °C
+
+        <!-- pollution -->
+        <v-col class="ma-0 pa-0" cols="12" md="6">
+          <v-icon class="mt-n4 me-2" size="35" :color="pollution?.description.color">
+            {{ pollution?.description.icon }}
+          </v-icon>
+          <span class="text-h4">
+            {{ pollution?.aqi }}
           </span>
-          <span class="text-subtitle-2 ms-1">
-            {{ t('TEMP_MIN') }} {{ weather?.temp?.temp_min }} °C
-          </span> -->
-          The air temperature will be {{ weather?.temp?.feels_like }}°C feels like, the maximum will be {{ weather?.temp?.temp_max }}°C and the minimum will be {{ weather?.temp?.temp_min }}°C.
-          <!-- {{ $t(APLDescription[pollution?.level || 'EMPTY'].desc: '') }} -->
-          <!-- Feels like {{ weather?.temp?.feels_like }}°C, the high will be {{ weather?.temp?.temp_min }}°C, the low will be {{ weather?.temp?.temp_max }}°C. -->
         </v-col>
       </v-row>
+
+      <v-divider></v-divider>
+        
+        
+        
+        
+        
+        
+        <!-- <v-col class="ma-0 pa-0" cols="12">
+          <v-chip-group
+            selected-class="text-primary"
+            column
+          >
+            <v-chip
+              v-for="tag in [
+    'Work',
+    'Home Improvement',
+    'Vacation',
+    'Food',
+    'Drawers',
+    'Shopping',
+    'Art',
+    'Tech',
+    'Creative Writing',
+  ]"
+              :key="tag"
+            >
+              {{ tag }}
+            </v-chip>
+          </v-chip-group>
+        </v-col> -->
+
+
+
+
+
+        
+
+
+
+
+
+        
+
+
+
+
+
+
+
+
+      
+
+
+    
+
+
+
+
     </v-card-text>
 
 
@@ -234,12 +292,11 @@ import sky from '@/assets/images/cloud-background.mp4'
 
 
     <v-card-actions>
+      <!-- tooltip -->
       <v-btn
-        color="orange-lighten-2"
-        variant="text"
-      >
-        Explore
-      </v-btn>
+        :icon="show ? 'mdi-heart-outline' : 'mdi-heart'"
+        ></v-btn>
+        <!-- @click="show = !show" -->
 
       <v-spacer></v-spacer>
 
@@ -253,8 +310,19 @@ import sky from '@/assets/images/cloud-background.mp4'
       <div v-show="show">
         <v-divider></v-divider>
 
-        <v-card-text>
-          I'm a thing. But, like most politicians, he promised more than he could deliver. You won't have time for sleeping, soldier, not with all the bed making you'll be doing. Then we'll go with that data file! Hey, you add a one and two zeros to that or we walk! You're going to do his laundry? I've got to find a way to escape.
+        <v-card-text class="px-3">
+          <v-row align="start" justify="start" dense>
+            <v-col cols="12">
+              <span class="text-caption">
+                The air temperature will be {{ weather?.temp?.feels_like }}°C feels like, the maximum will be {{ weather?.temp?.temp_max }}°C and the minimum will be {{ weather?.temp?.temp_min }}°C.
+              </span>
+            </v-col>
+            <v-col cols="12">
+              <span class="text-caption">
+                {{ $t(pollution?.description?.desc || '') }}
+              </span>
+            </v-col>
+          </v-row>
         </v-card-text>
       </div>
     </v-expand-transition>

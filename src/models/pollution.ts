@@ -1,15 +1,5 @@
 import { type ExpandedPollution } from '@/types/pollution'
-import { APL } from '@/data/air_pollution_level'
-// enum APL {
-//   GOOD,
-//   MODERATE,
-//   UNHEALTHY_SENSITIVE_GROUPS,
-//   UNHEALTHY,
-//   VERY_UNHEALTHY,
-//   VERY_UNHEALTHYY,
-//   HAZARDOUS
-// }
-
+import { APL, APLDescription } from '@/data/air_pollution_level'
 
 class PollutionModels {
   private _data: any
@@ -18,19 +8,20 @@ class PollutionModels {
     this._data = data
   }
 
-  private _airPollutionLevel(aqi: number): string {
+  private _airPollutionLevel(aqi: number): keyof typeof APLDescription {
     const level: number = Math.floor(aqi / 50) - (aqi % 50 ? 0 : 1)
-    console.log('airPollutionLevel ==>', level)
-    return APL[level]
+    // console.log(aqi, 'airPollutionLevel ==>', level)
+    return APL[level] as keyof typeof APLDescription
   }
 
   expanded(): ExpandedPollution {
-    // console.log('data from model', this._data.aqi)
+    // console.log('data from model', this._airPollutionLevel(500) || 'HAZARDOUS')
     return {
       id: this._data.idx || 0,
       name: this._data.city.name || '',
       aqi: this._data.aqi || 0,
-      level: this._airPollutionLevel(this._data.aqi || 0) || '',
+      level: this._airPollutionLevel(this._data.aqi || 0) ?? 'HAZARDOUS',
+      description: APLDescription[this._airPollutionLevel(this._data.aqi || 0) ?? 'HAZARDOUS'],
       co: this._data.iaqi?.co?.v || 0,
       dew: this._data.iaqi?.dew?.v || 0,
       h: this._data.iaqi?.h?.v || 0,

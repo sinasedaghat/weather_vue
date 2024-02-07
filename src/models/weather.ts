@@ -11,7 +11,8 @@ class WeatherModels {
   }
 
   expanded(): ExpandedWeather {
-    // console.log('data from model', this._data)
+    const sss = new Date(1707314802 * 1000)
+    console.log('data from model', sss)
     return {
       id: this._data.weather[0].id, // 
       city_id: this._data.id,

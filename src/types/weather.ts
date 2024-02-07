@@ -24,6 +24,17 @@ export interface ExpandedWeather {
   wind: Wind
 }
 
+
+
+
+// visibility: data.visibility
+// wind_speed: data.wind.speed
+// humidity: data.main.humidity
+// pressure: data.main.pressure
+
+
+
+
 // let weatherOBJ: Weather = {
   //   id: data.value.weather[0].id,
   //   city_id: data.value.id,

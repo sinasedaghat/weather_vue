@@ -16,23 +16,37 @@ class PollutionModels {
 
   expanded(): ExpandedPollution {
     // console.log('data from model', this._airPollutionLevel(500) || 'HAZARDOUS')
-    return {
+    const expandedPollution: ExpandedPollution = {
       id: this._data.idx || 0,
       name: this._data.city.name || '',
       aqi: this._data.aqi || 0,
       level: this._airPollutionLevel(this._data.aqi || 0) ?? 'HAZARDOUS',
       description: APLDescription[this._airPollutionLevel(this._data.aqi || 0) ?? 'HAZARDOUS'],
-      co: this._data.iaqi?.co?.v || 0,
-      dew: this._data.iaqi?.dew?.v || 0,
-      h: this._data.iaqi?.h?.v || 0,
-      no2: this._data.iaqi?.no2?.v || 0,
-      p: this._data.iaqi?.p?.v || 0,
-      pm10: this._data.iaqi?.pm10?.v ?? 0,
-      pm25: this._data.iaqi?.pm25?.v || 0,
-      so2: this._data.iaqi?.so2?.v || 0,
-      t: this._data.iaqi?.t?.v || 0,
-      w: this._data.iaqi?.w?.v || 0,
     }
+    if(this._data.iaqi?.pm25?.v) expandedPollution['pm25'] = {
+      value: this._data.iaqi?.pm25?.v, 
+      color: APLDescription[this._airPollutionLevel(this._data.iaqi?.pm25?.v)].color
+    }
+    if(this._data.iaqi?.pm10?.v) expandedPollution['pm10'] = {
+      value: this._data.iaqi?.pm10?.v, 
+      color: APLDescription[this._airPollutionLevel(this._data.iaqi?.pm10?.v)].color
+    }
+    if(this._data.iaqi?.co?.v) expandedPollution['co'] = {
+      value: this._data.iaqi?.co?.v,
+      color: APLDescription[this._airPollutionLevel(this._data.iaqi?.co?.v)].color
+    }
+    if(this._data.iaqi?.no2?.v) expandedPollution['no2'] = {
+      value: this._data.iaqi?.no2?.v,
+      color: APLDescription[this._airPollutionLevel(this._data.iaqi?.no2?.v)].color
+    }
+    if(this._data.iaqi?.so2?.v) expandedPollution['so2'] = {
+      value: this._data.iaqi?.so2?.v,
+      color: APLDescription[this._airPollutionLevel(this._data.iaqi?.so2?.v)].color
+    }
+
+    // µg/m³
+
+    return expandedPollution
   }
 
   shrunken() {}

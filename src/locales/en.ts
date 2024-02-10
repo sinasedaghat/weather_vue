@@ -18,4 +18,8 @@ export default {
   UNHEALTHY_AIR_POLLUTION_DESCRIPTION: 'Everyone may begin to experience health effects; members of sensitive groups may experience more serious health effects.',
   VERY_UNHEALTHY_AIR_POLLUTION_DESCRIPTION: 'Health warnings of emergency conditions. The entire population is more likely to be affected.',
   HAZARDOUS_AIR_POLLUTION_DESCRIPTION: 'Health alert: everyone may experience more serious health effects.',
+  wind: 'Wind',
+  pressure: 'Pressure',
+  humidity: 'Humidity',
+  visibility: 'Visibility',
 }

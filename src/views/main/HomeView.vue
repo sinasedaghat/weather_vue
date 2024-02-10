@@ -8,7 +8,8 @@ import weatherModel from '@/models/weather'
 import pollutionModel from '@/models/pollution'
 import { type ExpandedWeather } from '@/types/weather'
 import { type ExpandedPollution  } from '@/types/pollution'
-// import { APLDescription } from '@/data/air_pollution_level'
+import { chips as weatherChip } from '@/data/chips_weather'
+import { chips as pollutionChip } from '@/data/chips_pollution'
 import sky from '@/assets/images/cloud-background.mp4'
 
   const { t } = useLocale()
@@ -17,9 +18,9 @@ import sky from '@/assets/images/cloud-background.mp4'
   const weather: Ref<ExpandedWeather | null> = ref(null)
   const pollution: Ref< ExpandedPollution| null> = ref(null)
   const image: Ref<string> = ref('')
+  const favCities: Ref<string[]> = ref(['tehran'])
 
-
-  const show = ref(false)
+ 
 
 
   
@@ -56,8 +57,6 @@ import sky from '@/assets/images/cloud-background.mp4'
   const getImage = () => {
     imageAPI.getImage(city)
     .then(async (response) => {
-      // console.log(response.data)
-      // const xxx = 
       image.value = response.data.images_results[Math.floor(Math. random()*5) + 1].original
     })
     .catch((error) => {
@@ -74,8 +73,6 @@ import sky from '@/assets/images/cloud-background.mp4'
     getPollution()
     getImage()
   }
-
-  
 </script>
 
 <template>
@@ -178,125 +175,128 @@ import sky from '@/assets/images/cloud-background.mp4'
       </v-card-title>
     </v-img>
 
-
     <v-card-text>
+      <!-- main details -->
       <v-row class="ma-0 pa-0" align="start" justify="start" dense>
         <!-- weather -->
         <v-col class="ma-0 pa-0" cols="12" md="6">
-          <v-avatar size="60" class="mt-n3 me-n2">
-            <v-img :src="weather?.icon" alt="Cloud Logo" />
-          </v-avatar>
+          <!-- icon & description -->
+          <v-tooltip 
+            location="end"
+            width="250"
+          >
+            <template v-slot:activator="{ props }">
+              <v-avatar v-bind="props" size="60" class="mt-n3 me-n2">
+                <v-img :src="weather?.icon" alt="Cloud Logo" />
+              </v-avatar>
+            </template>
+            <div>
+              <span class="text-subtitle-2 font-weight-bold d-block">{{ t('WEATHER_TOOLTIP') }}</span>
+              <span class="text-caption font-weight-bold d-block ms-2">{{ weather?.main }} - {{ weather?.description }}</span>
+              <span class="text-caption d-block ms-2">
+                The air temperature will be {{ weather?.temp?.feels_like }}°C feels like, the maximum will be {{ weather?.temp?.temp_max }}°C and the minimum will be {{ weather?.temp?.temp_min }}°C.
+              </span>
+            </div>
+          </v-tooltip>
+          <!-- temp -->
           <span class="text-h4">
             {{ weather?.temp?.temp }}°C
           </span>
         </v-col>
-
         <!-- pollution -->
-        <v-col class="ma-0 pa-0" cols="12" md="6">
-          <v-icon class="mt-n4 me-2" size="35" :color="pollution?.description.color">
-            {{ pollution?.description.icon }}
-          </v-icon>
+        <v-col class="ma-0 pa-0" cols="12" md="5">
+          <!-- icon & description -->
+          <v-tooltip 
+            location="end"
+            width="250"
+          >
+            <template v-slot:activator="{ props }">
+              <v-icon v-bind="props" class="mt-n4 me-2" size="35" :color="pollution?.description.color">
+                {{ pollution?.description.icon }}
+              </v-icon>
+            </template>
+            <div>
+              <span class="text-subtitle-2 font-weight-bold d-block">{{ t('POLLUTION_LEVEL_TOOLTIP') }}</span>
+              <span class="text-caption font-weight-bold d-block ms-2">{{ t(pollution?.level ?? '') }}</span>
+              <span class="text-caption d-block ms-2">
+                {{ $t(pollution?.description?.desc || '') }}
+              </span>
+            </div>
+          </v-tooltip>
+          <!-- AQI -->
           <span class="text-h4">
             {{ pollution?.aqi }}
           </span>
         </v-col>
-      </v-row>
-
-      <v-divider></v-divider>
-        
-        
-        
-        
-        
-        
-        <!-- <v-col class="ma-0 pa-0" cols="12">
-          <v-chip-group
-            selected-class="text-primary"
-            column
+        <v-spacer></v-spacer>
+        <v-col class="ma-0 pa-0" cols="12" md="auto">
+          <!-- icon & description -->
+          <v-tooltip 
+            location="end"
+            width="250"
           >
-            <v-chip
-              v-for="tag in [
-    'Work',
-    'Home Improvement',
-    'Vacation',
-    'Food',
-    'Drawers',
-    'Shopping',
-    'Art',
-    'Tech',
-    'Creative Writing',
-  ]"
-              :key="tag"
+            <template v-slot:activator="{ props }">
+              <v-icon 
+                v-bind="props" 
+                class="mb-n4" 
+                size="25" 
+                :color="favCities.includes(city) ? 'error' : 'gray'"
+              >
+                {{ favCities.includes(city) ? 'mdi-heart' : 'mdi-heart-outline' }}
+              </v-icon>
+            </template>
+            <span class="text-caption">{{
+              favCities.includes(city) ? 'Removal from the list of favorite cities' : 'Add to list of favorite cities'
+            }}</span>
+          </v-tooltip>
+        </v-col>
+      </v-row>
+      <v-divider />
+      <!-- chips details -->
+      <v-row class="ma-0 pa-0" align="start" justify="start" dense>
+        <!-- weather -->
+        <v-col v-if="weather" class="ma-0 pa-0" cols="12">
+          <v-chip
+            v-for="tag in weatherChip"
+            :key="tag.id"
+            class="me-2 mt-2"
+            density="comfortable"
+            :color="tag.color"
+          >
+            <small>
+              <span class="font-weight-bold me-1">{{ tag.label }}:</span>
+              <span class="font-weight-medium">{{ weather[tag.value as 'wind' | 'pressure' | 'humidity' | 'visibility'] }}</span>
+            </small>
+          </v-chip>
+        </v-col>
+        <v-divider class="mt-2 mx-16" />
+        <!-- pollution -->
+        <v-col v-if="pollution" class="ma-0 pa-0" cols="12">
+          <v-chip
+            v-for="tag in Object.values(pollutionChip).filter(tag => pollution && Boolean(pollution[tag.value as 'co' | 'no2' | 'pm10' | 'pm25' | 'so2']?.value))"
+            :key="tag.id"
+            class="me-2 mt-2"
+            density="comfortable"
+            :color="pollution[tag.value as 'co' | 'no2' | 'pm10' | 'pm25' | 'so2']?.color"
             >
-              {{ tag }}
-            </v-chip>
-          </v-chip-group>
-        </v-col> -->
-
-
-
-
-
-        
-
-
-
-
-
-        
-
-
-
-
-
-
-
-
-      
-
-
-    
-
-
-
-
+            <small>
+              <span class="font-weight-bold me-1">{{ tag.label }}:</span>
+              <span class="font-weight-medium">{{ pollution[tag.value as 'co' | 'no2' | 'pm10' | 'pm25' | 'so2']?.value }}</span>
+            </small>
+          </v-chip>
+        </v-col>
+      </v-row>
     </v-card-text>
 
 
 
 
-
-      <!-- weather -->
-      <!-- <v-row style="border: 1px solid #fff;"  align="start" justify="start"> -->
-        <!-- icon -->
-        <!-- <v-col style="border: 1px solid #fff;" cols="12" class="mt-n7 ms-n4">
-          <v-avatar size="50">
-            <v-img style="display: inline-block;" width="50" height="50" :src="weather?.icon" alt="Cloud Logo" />
-          </v-avatar>
-          <h4 style="display: inline-block;">12 C</h4>
-        </v-col> -->
-        <!-- location -->
-        <!-- <v-col cols="auto">
-          <span 
-            class="text-subtitle-1" 
-            v-html="`${weather?.main} <small>&quot;${weather?.description}&quot;</small>`" 
-          />
-        </v-col> -->
-      <!-- </v-row> -->
-    
-
-    <!-- <v-card-title>
-      {{ weather?.location }}
-    </v-card-title> -->
-
-
-
-    <v-card-actions>
-      <!-- tooltip -->
+    <!-- <v-card-actions>
+      tooltip
       <v-btn
         :icon="show ? 'mdi-heart-outline' : 'mdi-heart'"
         ></v-btn>
-        <!-- @click="show = !show" -->
+        @click="show = !show"
 
       <v-spacer></v-spacer>
 
@@ -304,32 +304,11 @@ import sky from '@/assets/images/cloud-background.mp4'
         :icon="show ? 'mdi-chevron-up' : 'mdi-chevron-down'"
         @click="show = !show"
       ></v-btn>
-    </v-card-actions>
-
-    <v-expand-transition>
-      <div v-show="show">
-        <v-divider></v-divider>
-
-        <v-card-text class="px-3">
-          <v-row align="start" justify="start" dense>
-            <v-col cols="12">
-              <span class="text-caption">
-                The air temperature will be {{ weather?.temp?.feels_like }}°C feels like, the maximum will be {{ weather?.temp?.temp_max }}°C and the minimum will be {{ weather?.temp?.temp_min }}°C.
-              </span>
-            </v-col>
-            <v-col cols="12">
-              <span class="text-caption">
-                {{ $t(pollution?.description?.desc || '') }}
-              </span>
-            </v-col>
-          </v-row>
-        </v-card-text>
-      </div>
-    </v-expand-transition>
+    </v-card-actions> -->
   </v-card>
 
 
-    <v-card
+    <!-- <v-card
       style="border: 2px solid #fff;"
       class="mx-auto mt-16" 
       rounded="xl"
@@ -337,7 +316,6 @@ import sky from '@/assets/images/cloud-background.mp4'
       width="900px"
     >
     <v-avatar class="mx-5" size="200">
-      <!-- <v-img :src="imageOrigin" alt="Cloud Logo" /> -->
       <v-img :src="weather?.icon" alt="Cloud Logo" />
     </v-avatar>
       {{ weather }}
@@ -356,7 +334,7 @@ import sky from '@/assets/images/cloud-background.mp4'
       >
         <v-img cover :src="image"></v-img>
       </v-avatar>
-  </v-card>
+  </v-card> -->
   </v-container>
 </template>
 

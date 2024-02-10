@@ -1,5 +1,6 @@
 import { type ExpandedWeather } from '@/types/weather'
 import countries from '@/assets/json/countries.json'
+import { Directions } from '@/data/wind_directions'
 
 class WeatherModels {
   private _data: any
@@ -10,13 +11,18 @@ class WeatherModels {
     this._data = data
   }
 
+  private _wind(speed: number, degree: number): string {
+    const direction = Math.floor((+degree % 360) / 22.5)
+    return `${speed.toFixed(1)}m/s ${Directions[direction]}`
+  }
+
   expanded(): ExpandedWeather {
-    const sss = new Date(1707314802 * 1000)
-    console.log('data from model', sss)
-    return {
+    // const sss = new Date(this._data.timezone * 1000)
+    // console.log(this._data.timezone, 'data from model', sss)
+    const expandedWeather: ExpandedWeather = {
       id: this._data.weather[0].id, // 
       city_id: this._data.id,
-      timezone: this._data.timezone,
+      shift_timezone: this._data.timezone,
       name: this._data.name || '',
       country: this._data.sys.country,
       location:  `${this._data.name || ''}, ${this.countriesMap[this._data.sys.country.toLowerCase()].name_en || ''}`,
@@ -29,10 +35,12 @@ class WeatherModels {
         temp_min: Math.round(this._data.main.temp_min),
         temp_max: Math.round(this._data.main.temp_max),
       },
-      wind: {
-        speed: this._data.wind.speed
-      }
     }
+    if(this._data?.wind?.speed && this._data?.wind?.deg) expandedWeather['wind'] = this._wind(this._data.wind.speed, this._data.wind.deg)
+    if(this._data?.visibility) expandedWeather['visibility'] = `${(this._data.visibility / 1000).toFixed(1)}km`
+    if(this._data?.main?.humidity) expandedWeather['humidity'] = `${this._data.main.humidity}%`
+    if(this._data?.main?.pressure) expandedWeather['pressure'] = `${this._data.main.pressure}hPa`
+    return expandedWeather
   }
 
   shrunken() {}

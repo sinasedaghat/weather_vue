@@ -1,21 +1,21 @@
 import { APLDescription } from '@/data/air_pollution_level'
 
+type Pollutant = {
+  value: number
+  color: string
+}
+
 export interface ExpandedPollution {
   id: number
   name: string
   aqi: number
   level: keyof typeof APLDescription
   description: typeof APLDescription[keyof typeof APLDescription]
-  co: number
-  dew: number
-  h: number
-  no2: number
-  p: number
-  pm10: number
-  pm25: number
-  so2: number
-  t: number
-  w: number
+  co?: Pollutant
+  no2?: Pollutant
+  pm10?: Pollutant
+  pm25?: Pollutant
+  so2?: Pollutant
 }
 
 export interface ShrunkenPollution {}

@@ -1,6 +1,20 @@
-// VITE_IMAGE_BASE_URL
-// VITE_IMAGE_TOKEN
+import http from '@/plugins/http'
+import service from '@/services/abstract_service'
+import { toValue, type Ref } from 'vue'
 
-// {{VITE_IMAGE_BASE_URL}}search.json?engine=google_images&q={{CITY + 'landmark HD'}}&apikey={{VITE_IMAGE_TOKEN}}
+class ImageAPI extends service {
+  private _path = import.meta.env.VITE_IMAGE_BASE_URL
 
-// import http from '@/plugins/http'
+  getImage(city: Ref<string> | string) {
+    return http.get(this._path, {
+      params: {
+        engine: 'google_images',
+        lang: 'ar',
+        q: `${toValue(city)} landmark`, // HD
+        apikey: import.meta.env.VITE_IMAGE_TOKEN
+      }
+    })
+  }
+}
+
+export default new ImageAPI()

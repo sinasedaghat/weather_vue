@@ -14,14 +14,11 @@ import { getImageURL } from '@/utils/createURL'
 import sky from '@/assets/images/cloud-background.mp4'
 // import { computed } from 'vue'
 
-var base_url = window.location.origin;
-console.log('baseURL', base_url)
-
   const { t } = useLocale()
   const valid: Ref<boolean> = ref(false)
   const city: Ref<string> = ref('')
   const weather: Ref<ExpandedWeather | null> = ref(null)
-  const pollution: Ref< ExpandedPollution| null> = ref(null)
+  const pollution: Ref< ExpandedPollution | null> = ref(null)
   const image: Ref<string> = ref(getImageURL('default-cart'))
   const favCities: Ref<string[]> = ref(['tehran'])
 
@@ -33,19 +30,24 @@ console.log('baseURL', base_url)
     return !!v || t('FIELD_IS_REQUIRED')
   }
 
-  const getWeather = () => {
-    weatherAPI.getWeather(city)
-    .then(async (response) => {
-      weather.value = await {...new weatherModel(response.data).expanded()}
-    })
-    .catch(() => {
-      // console.log(error)
-      image.value = getImageURL('error')
-    })
-    .finally(() => {
-      console.log('finally')
-    })
+  const difrent = (v: string) => {
+    console.log('difrent', v.toLocaleLowerCase() != weather.value?.name.toLocaleLowerCase())
+    return !!v || v.toLocaleLowerCase() != weather?.value?.name.toLocaleLowerCase() || t('FIELD_IS_REQUIRED')
   }
+
+  // const getWeather = () => {
+  //   weatherAPI.getWeather(city)
+  //   .then(async (response) => {
+  //     weather.value = await {...new weatherModel(response.data).expanded()}
+  //   })
+  //   .catch(() => {
+  //     // console.log(error)
+  //     image.value = getImageURL('error')
+  //   })
+  //   .finally(() => {
+  //     console.log('finally')
+  //   })
+  // }
 
   const getPollution = () => {
     pollutionAPI.getPollution(city)
@@ -74,10 +76,19 @@ console.log('baseURL', base_url)
   }
 
   const search = () => {
-    // console.log(city.value)
-    getWeather()
-    getPollution()
-    getImage()
+    weather.value = null
+    pollution.value = null
+    image.value = getImageURL('default-cart')
+
+    weatherAPI.getWeather(city).then(async (response) => {
+      weather.value = await {...new weatherModel(response.data).expanded()}
+      // Promise.allSettled([pollutionAPI.getPollution(city), imageAPI.getImage(city)]).then((values) => console.log(values))
+      getPollution()
+      getImage()
+    })
+    .catch(() => {
+      image.value = getImageURL('error')
+    })
   }
 </script>
 
@@ -97,35 +108,38 @@ console.log('baseURL', base_url)
       max-height="100px"
     >
       <v-card-text>
-        <v-row align="center" justify="center" dense>
-          <!-- city text field -->
-          <v-col cols="10">
-            <v-form v-model="valid">
+        <v-form v-model="valid" @submit.prevent="search">
+          <v-row align="center" justify="center" dense>
+            <!-- city text field -->
+            <v-col cols="10">
+              <!-- @keyup.enter.prevent="search" -->
+              <!-- @keyup.enter.prevent="'submit'" -->
               <v-text-field
                 v-model="city"
                 class="elevation-0"
                 color="primary"
                 variant="solo"
                 :placeholder="t('ENTER_CITY_NAME')"
-                :rules="[required]"
+                :rules="[required, difrent]"
                 hide-details
                 rounded
               />
-            </v-form>
-          </v-col>
-          <!-- search button -->
-          <v-col cols="auto">
-            <v-btn 
-              :disabled="!valid"
-              @click="search"
-              :variant="valid ? 'elevated' : 'outlined'" 
-              color="white" 
-              icon
-            >
-              <v-icon color="primary">mdi-map-search</v-icon>
-            </v-btn>
-          </v-col>
-        </v-row>
+            </v-col>
+            <!-- search button -->
+            <v-col cols="auto">
+              <!-- @click="search" -->
+              <v-btn 
+                :disabled="!valid"
+                type="submit"
+                :variant="valid ? 'elevated' : 'outlined'" 
+                color="white" 
+                icon
+                >
+                <v-icon color="primary">mdi-map-search</v-icon>
+              </v-btn>
+            </v-col>
+          </v-row>
+        </v-form>
       </v-card-text>
     </v-card>
     
@@ -293,7 +307,7 @@ It is a long established fact that a reader will be distracted by the readable c
               </small>
             </v-chip>
           </v-col>
-          <v-divider class="mt-2 mx-16" />
+          <v-divider v-if="pollution" class="mt-2 mx-16" />
           <!-- pollution -->
           <v-col v-if="pollution" class="ma-0 pa-0" cols="12">
             <v-chip
@@ -335,4 +349,3 @@ It is a long established fact that a reader will be distracted by the readable c
   padding: 20px;
 } */
 </style>
-@/utils/createURL

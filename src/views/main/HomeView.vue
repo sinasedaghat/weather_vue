@@ -10,17 +10,17 @@ import { type ExpandedWeather } from '@/types/weather'
 import { type ExpandedPollution  } from '@/types/pollution'
 import { chips as weatherChip } from '@/data/chips_weather'
 import { chips as pollutionChip } from '@/data/chips_pollution'
-import { getImageURL } from '@/utils/createURL'
+import { createURL } from '@/utils/createURL'
+import { useFavorites } from '@/composables/favorites'
 import sky from '@/assets/images/cloud-background.mp4'
-// import { computed } from 'vue'
 
   const { t } = useLocale()
   const valid: Ref<boolean> = ref(false)
   const city: Ref<string> = ref('')
   const weather: Ref<ExpandedWeather | null> = ref(null)
   const pollution: Ref< ExpandedPollution | null> = ref(null)
-  const image: Ref<string> = ref(getImageURL('default-cart'))
-  const favCities: Ref<string[]> = ref(['tehran'])
+  const image: Ref<string> = ref(createURL('default-cart'))
+  const { favCities, updateFavs } = useFavorites()
 
   const analysisImageURL = computed(() => {
     return image.value.search(window.location.origin) == -1
@@ -31,10 +31,9 @@ import sky from '@/assets/images/cloud-background.mp4'
   }
 
   const difrent = (v: string) => {
-    console.log('difrent', v.toLocaleLowerCase() != weather.value?.name.toLocaleLowerCase())
-    return !!v || v.toLocaleLowerCase() != weather?.value?.name.toLocaleLowerCase() || t('FIELD_IS_REQUIRED')
+    return !!v && v.toLocaleLowerCase() != weather?.value?.name.toLocaleLowerCase() || t('FIELD_IS_REQUIRED')
   }
-
+  
   // const getWeather = () => {
   //   weatherAPI.getWeather(city)
   //   .then(async (response) => {
@@ -42,7 +41,7 @@ import sky from '@/assets/images/cloud-background.mp4'
   //   })
   //   .catch(() => {
   //     // console.log(error)
-  //     image.value = getImageURL('error')
+  //     image.value = createURL('error')
   //   })
   //   .finally(() => {
   //     console.log('finally')
@@ -52,13 +51,7 @@ import sky from '@/assets/images/cloud-background.mp4'
   const getPollution = () => {
     pollutionAPI.getPollution(city)
     .then(async (response) => {
-      pollution.value = await {...new pollutionModel(response.data.data).expanded()}
-    })
-    .catch((error) => {
-      console.log(error)
-    })
-    .finally(() => {
-      console.log('finally')
+      if(response.data.status.toLocaleLowerCase() == 'ok')pollution.value = await {...new pollutionModel(response.data.data).expanded()}
     })
   }
 
@@ -67,27 +60,26 @@ import sky from '@/assets/images/cloud-background.mp4'
     .then(async (response) => {
       image.value = response.data.images_results[Math.floor(Math. random()*5) + 1].original
     })
-    .catch((error) => {
-      console.log(error)
-    })
-    .finally(() => {
-      console.log('finally')
+    .catch(() => {
+      image.value = createURL('city')
     })
   }
 
   const search = () => {
     weather.value = null
     pollution.value = null
-    image.value = getImageURL('default-cart')
-
+    image.value = createURL('magnifier', 'gif')
     weatherAPI.getWeather(city).then(async (response) => {
       weather.value = await {...new weatherModel(response.data).expanded()}
       // Promise.allSettled([pollutionAPI.getPollution(city), imageAPI.getImage(city)]).then((values) => console.log(values))
-      getPollution()
-      getImage()
+      await getPollution()
+      await getImage()
     })
     .catch(() => {
-      image.value = getImageURL('error')
+      image.value = createURL('error')
+    })
+    .finally(() => {
+      city.value = ''
     })
   }
 </script>
@@ -153,7 +145,7 @@ import sky from '@/assets/images/cloud-background.mp4'
       <v-img
         :src="image"
         height="320px"
-        :gradient="analysisImageURL || weather?.name ? 'to bottom, rgba(0,0,0,0), rgba(0,0,0,1)' : ''"
+        :gradient="analysisImageURL || image.search('city') != -1? 'to bottom, rgba(0,0,0,0), rgba(0,0,0,1)' : ''"
         :class="`align-end ${weather ? 'text-white' : ''}`"
         :cover="analysisImageURL"
       >
@@ -278,13 +270,14 @@ It is a long established fact that a reader will be distracted by the readable c
                   v-bind="props" 
                   class="mb-n4" 
                   size="25" 
-                  :color="favCities.includes(city) ? 'error' : 'gray'"
+                  :color="favCities.includes(weather?.name.toLowerCase()) ? 'error' : 'gray'"
+                  @click="updateFavs(weather?.name.toLowerCase())"
                 >
-                  {{ favCities.includes(city) ? 'mdi-heart' : 'mdi-heart-outline' }}
+                  {{ favCities.includes(weather?.name.toLowerCase()) ? 'mdi-heart' : 'mdi-heart-outline' }}
                 </v-icon>
               </template>
               <span class="text-caption">{{
-                favCities.includes(city) ? 'Removal from the list of favorite cities' : 'Add to list of favorite cities'
+                favCities.includes(weather?.name.toLowerCase()) ? 'Removal from the list of favorite cities' : 'Add to list of favorite cities'
               }}</span>
             </v-tooltip>
           </v-col>
@@ -295,7 +288,7 @@ It is a long established fact that a reader will be distracted by the readable c
           <!-- weather -->
           <v-col v-if="weather" class="ma-0 pa-0" cols="12">
             <v-chip
-              v-for="tag in weatherChip"
+              v-for="tag in Object.values(weatherChip).filter(tag => weather && Boolean(weather[tag.value as 'wind' | 'pressure' | 'humidity' | 'visibility']))"
               :key="tag.id"
               class="me-2 mt-2"
               density="comfortable"
@@ -319,7 +312,7 @@ It is a long established fact that a reader will be distracted by the readable c
               >
               <small>
                 <span class="font-weight-bold me-1">{{ tag.label }}:</span>
-                <span class="font-weight-medium">{{ pollution[tag.value as 'co' | 'no2' | 'pm10' | 'pm25' | 'so2']?.value }}</span>
+                <span class="font-weight-medium">{{ pollution[tag.value as 'co' | 'no2' | 'pm10' | 'pm25' | 'so2']?.value }}µg/m³</span>
               </small>
             </v-chip>
           </v-col>

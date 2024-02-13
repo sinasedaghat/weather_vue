@@ -10,7 +10,6 @@ class PollutionModels {
 
   private _airPollutionLevel(aqi: number): keyof typeof APLDescription {
     const level: number = Math.floor(aqi / 50) - (aqi % 50 ? 0 : 1)
-    // console.log(aqi, 'airPollutionLevel ==>', level)
     return APL[level] as keyof typeof APLDescription
   }
 
@@ -43,8 +42,6 @@ class PollutionModels {
       value: this._data.iaqi?.so2?.v,
       color: APLDescription[this._airPollutionLevel(this._data.iaqi?.so2?.v)].color
     }
-
-    // µg/m³
 
     return expandedPollution
   }

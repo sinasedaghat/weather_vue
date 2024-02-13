@@ -36,7 +36,6 @@ class WeatherModels {
         temp_max: Math.round(this._data.main.temp_max),
       },
     }
-    console.log('WIND ===>', this._data?.wind)
     if(this._data?.wind?.speed) expandedWeather['wind'] = this._wind(this._data.wind.speed, this._data.wind.deg ?? 0)
     if(this._data?.visibility) expandedWeather['visibility'] = `${(this._data.visibility / 1000).toFixed(1)}km`
     if(this._data?.main?.humidity) expandedWeather['humidity'] = `${this._data.main.humidity}%`

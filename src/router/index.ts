@@ -12,12 +12,12 @@ const router = createRouter({
       children: [
         {
           path: '/',
-          name: 'home',
+          name: 'Home',
           component: HomeView
         },
         {
           path: '/favorites',
-          name: 'favorites',
+          name: 'Favorites',
           component: () =>  import('@/views/main/FavoritesView.vue')
         },
       ]

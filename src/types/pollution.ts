@@ -5,6 +5,10 @@ type Pollutant = {
   color: string
 }
 
+type ShrunkenPick = 'aqi' | 'level' | 'description'
+
+type ShrunkenOmit = 'id' | 'name' | 'co' | 'no2' | 'pm10' | 'pm25' | 'so2'
+
 export interface ExpandedPollution {
   id: number
   name: string
@@ -19,3 +23,5 @@ export interface ExpandedPollution {
 }
 
 export interface ShrunkenPollution {}
+
+export type ShrunkenWeather = Pick<ExpandedPollution, ShrunkenPick>

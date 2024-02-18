@@ -1,10 +1,10 @@
-import { type ExpandedPollution } from '@/types/pollution'
+import type { ExpandedPollution, ShrunkenPollution } from '@/types/pollution'
 import { APL, APLDescription } from '@/data/air_pollution_level'
 
 class PollutionModels {
-  private _data: any
+  private _data?: any
 
-  constructor(data: any) {
+  constructor(data?: any) {
     this._data = data
   }
 
@@ -46,7 +46,27 @@ class PollutionModels {
     return expandedPollution
   }
 
-  shrunken() {}
+  private _shrunkenResponse(): ShrunkenPollution {
+    const shrunkenPollution: ShrunkenPollution = {
+      aqi: this._data.aqi || 0,
+      level: this._airPollutionLevel(this._data.aqi || 0) ?? 'HAZARDOUS',
+      description: APLDescription[this._airPollutionLevel(this._data.aqi || 0) ?? 'HAZARDOUS'],
+    }
+    return shrunkenPollution
+  }
+
+  private _shrunkenData(data: ExpandedPollution): ShrunkenPollution {
+    const shrunkenPollution: ShrunkenPollution = {
+      aqi: data.aqi,
+      level: data.level,
+      description: data.description,
+    }
+    return shrunkenPollution
+  }
+
+  shrunkenAdapter(data?: ExpandedPollution): ShrunkenPollution {
+    return data ? this._shrunkenData(data) : this._shrunkenResponse()
+  }
 }
 
 export default PollutionModels

@@ -1,26 +1,29 @@
 <script setup lang="ts">
 import { ref, computed, type Ref } from 'vue'
 import { useLocale } from 'vuetify'
+import { useFavoritesCitiesStore } from '@/stores/favorites_cities'
+import { useFavorites } from '@/composables/favorites'
+import { createURL } from '@/utils/createURL'
 import weatherAPI from '@/services/weather'
 import pollutionAPI from '@/services/pollution'
 import imageAPI from '@/services/image'
 import weatherModel from '@/models/weather'
 import pollutionModel from '@/models/pollution'
-import { type ExpandedWeather } from '@/types/weather'
-import { type ExpandedPollution  } from '@/types/pollution'
+import type { ExpandedWeather } from '@/types/weather'
+import type { ExpandedPollution  } from '@/types/pollution'
+import type { FavData } from '@/types/favorites'
 import { chips as weatherChip } from '@/data/chips_weather'
 import { chips as pollutionChip } from '@/data/chips_pollution'
-import { createURL } from '@/utils/createURL'
-import { useFavorites } from '@/composables/favorites'
 import sky from '@/assets/images/cloud-background.mp4'
 
   const { t } = useLocale()
+  const { upgradeFavs } = useFavorites()
+  const favoritesCities = useFavoritesCitiesStore()
   const valid: Ref<boolean> = ref(false)
   const city: Ref<string> = ref('')
   const weather: Ref<ExpandedWeather | null> = ref(null)
   const pollution: Ref< ExpandedPollution | null> = ref(null)
   const image: Ref<string> = ref(createURL('default-cart'))
-  const { favCities, updateFavs } = useFavorites()
 
   const analysisImageURL = computed(() => {
     return image.value.search(window.location.origin) == -1
@@ -29,40 +32,8 @@ import sky from '@/assets/images/cloud-background.mp4'
   const required = (v: string) => {
     return !!v || t('FIELD_IS_REQUIRED')
   }
-
   const difrent = (v: string) => {
     return !!v && v.toLocaleLowerCase() != weather?.value?.name.toLocaleLowerCase() || t('FIELD_IS_REQUIRED')
-  }
-  
-  // const getWeather = () => {
-  //   weatherAPI.getWeather(city)
-  //   .then(async (response) => {
-  //     weather.value = await {...new weatherModel(response.data).expanded()}
-  //   })
-  //   .catch(() => {
-  //     // console.log(error)
-  //     image.value = createURL('error')
-  //   })
-  //   .finally(() => {
-  //     console.log('finally')
-  //   })
-  // }
-
-  const getPollution = () => {
-    pollutionAPI.getPollution(city)
-    .then(async (response) => {
-      if(response.data.status.toLocaleLowerCase() == 'ok')pollution.value = await {...new pollutionModel(response.data.data).expanded()}
-    })
-  }
-
-  const getImage = () => {
-    imageAPI.getImage(city)
-    .then(async (response) => {
-      image.value = response.data.images_results[Math.floor(Math. random()*5) + 1].original
-    })
-    .catch(() => {
-      image.value = createURL('city')
-    })
   }
 
   const search = () => {
@@ -81,6 +52,32 @@ import sky from '@/assets/images/cloud-background.mp4'
     .finally(() => {
       city.value = ''
     })
+  }
+  const getPollution = () => {
+    pollutionAPI.getPollution(city)
+    .then(async (response) => {
+      if(response.data.status.toLocaleLowerCase() == 'ok')pollution.value = await {...new pollutionModel(response.data.data).expanded()}
+    })
+  }
+  const getImage = () => {
+    imageAPI.getImage(city)
+    .then(async (response) => {
+      image.value = response.data.images_results[Math.floor(Math. random()*5) + 1].original
+    })
+    .catch(() => {
+      image.value = createURL('city')
+    })
+  }
+  const favAction = () => {
+    upgradeFavs(weather.value?.name.toLowerCase() ?? '')
+    // FavData
+    // const data = [
+    //   new weatherModel().shrunkenAdapter(weather.value as ExpandedWeather)
+    // ]
+    favoritesCities.minorUpdate(
+      new weatherModel().shrunkenAdapter(weather.value as ExpandedWeather),
+      new pollutionModel().shrunkenAdapter(pollution.value as ExpandedPollution)
+    )
   }
 </script>
 
@@ -270,14 +267,14 @@ It is a long established fact that a reader will be distracted by the readable c
                   v-bind="props" 
                   class="mb-n4" 
                   size="25" 
-                  :color="favCities.includes(weather?.name.toLowerCase()) ? 'error' : 'gray'"
-                  @click="updateFavs(weather?.name.toLowerCase())"
+                  :color="favoritesCities.citiesList.includes(weather?.name.toLowerCase()) ? 'error' : 'gray'"
+                  @click="favAction"
                 >
-                  {{ favCities.includes(weather?.name.toLowerCase()) ? 'mdi-heart' : 'mdi-heart-outline' }}
+                  {{ favoritesCities.citiesList.includes(weather?.name.toLowerCase()) ? 'mdi-heart' : 'mdi-heart-outline' }}
                 </v-icon>
               </template>
               <span class="text-caption">{{
-                favCities.includes(weather?.name.toLowerCase()) ? 'Removal from the list of favorite cities' : 'Add to list of favorite cities'
+                favoritesCities.citiesList.includes(weather?.name.toLowerCase()) ? 'Removal from the list of favorite cities' : 'Add to list of favorite cities'
               }}</span>
             </v-tooltip>
           </v-col>

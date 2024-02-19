@@ -1,9 +1,11 @@
 import { type ShrunkenWeather } from './weather'
 import { type ShrunkenPollution } from './pollution'
 
-export type FavData = ShrunkenWeather & Partial<ShrunkenPollution> & {
+export type FavData = {
+  weather: ShrunkenWeather
+  pollution: Partial<ShrunkenPollution>
   date: Date
-  image?: string 
+  image: string 
 }
 
 export type Favorites = { [key: string]: FavData }

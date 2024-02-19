@@ -11,7 +11,7 @@ import weatherModel from '@/models/weather'
 import pollutionModel from '@/models/pollution'
 import type { ExpandedWeather } from '@/types/weather'
 import type { ExpandedPollution  } from '@/types/pollution'
-import type { FavData } from '@/types/favorites'
+// import type { FavData } from '@/types/favorites'
 import { chips as weatherChip } from '@/data/chips_weather'
 import { chips as pollutionChip } from '@/data/chips_pollution'
 import sky from '@/assets/images/cloud-background.mp4'
@@ -76,6 +76,7 @@ import sky from '@/assets/images/cloud-background.mp4'
     // ]
     favoritesCities.minorUpdate(
       new weatherModel().shrunkenAdapter(weather.value as ExpandedWeather),
+      image.value,
       new pollutionModel().shrunkenAdapter(pollution.value as ExpandedPollution)
     )
   }

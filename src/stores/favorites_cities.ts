@@ -17,14 +17,14 @@ export const useFavoritesCitiesStore = defineStore('favoritesCities', () => {
     cities.value = [ ...toValue(data) ]
   }
 
-  const minorUpdate = (weather: ShrunkenWeather, pollution: ShrunkenPollution, image?: string) => {
+  const minorUpdate = (weather: ShrunkenWeather, image?: string, pollution?: ShrunkenPollution) => {
     console.log('weather from minorUpdate() in favoritesCities statemanagement ===>', weather)
     console.log('pollution from minorUpdate() in favoritesCities statemanagement ===>', pollution)
     citiesData.value = {
       ...citiesData.value,
       [weather.name.toLowerCase()] : {
-        ...weather,
-        ...pollution,
+        weather: {...weather},
+        pollution: {...pollution},
         image: image ?? '',  // todo update default of image
         date: new Date()
       }

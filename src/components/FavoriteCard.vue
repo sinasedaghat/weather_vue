@@ -1,12 +1,8 @@
 <script setup lang="ts">
-import { useTheme, useLocale } from 'vuetify';
-import type { FavData } from '@/types/favorites'
   interface Props {
-    favorites: FavData
+    city: string
   }
   const props = defineProps<Props>()
-  const theme = useTheme()
-  const { t } = useLocale()
 </script>
 
 <template>
@@ -23,16 +19,16 @@ import type { FavData } from '@/types/favorites'
         rounded="lg"
         style="border: 1px solid white;"
       >
-        <v-img 
+        <!-- <v-img 
           :src="props.favorites.image" 
           :alt="`${props.favorites.weather.name} image`" 
           gradient="to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.5)"
           cover
-        />
+        /> -->
       </v-avatar>
       <div>
         <v-card-title class="pt-5">
-          <span class="text-h5 text-white" v-html="props.favorites.weather.location" />
+          <!-- <span class="text-h5 text-white" v-html="props.favorites.weather.location" /> -->
         </v-card-title>
 
         <v-card-text>

@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { RouterView, useRouter } from 'vue-router';
-import { useFavoritesCitiesStore } from '@/stores/favorites_cities'
-import { storeToRefs } from 'pinia';
-  const favoritesCities = useFavoritesCitiesStore()
-  const { hasFavs } = storeToRefs(favoritesCities)
+// import { useFavoritesCitiesStore } from '@/stores/favorites_cities'
+// import { storeToRefs } from 'pinia';
+  // const favoritesCities = useFavoritesCitiesStore()
+  // const { hasFavs } = storeToRefs(favoritesCities)
   const router = useRouter()
   const imgUrl = new URL('@/assets/images/cloud-logo.png', import.meta.url).href
 </script>
@@ -13,7 +13,6 @@ import { storeToRefs } from 'pinia';
     <!-- app bar -->
     <v-app-bar color="primary">
       <v-avatar @click="router.push({ name: 'Home' })" class="mx-5" size="50">
-        <!-- <v-img :src="imageOrigin" alt="Cloud Logo" /> -->
         <v-img style="background-color: white;" :src="imgUrl" alt="Cloud Logo" />
       </v-avatar>
       
@@ -27,7 +26,8 @@ import { storeToRefs } from 'pinia';
       </v-row>
 
       <v-spacer />
-      <v-btn :disabled="!hasFavs" @click="router.push({ name: 'Favorites' })" icon >
+      <!-- :disabled="!hasFavs" -->
+      <v-btn disabled @click="router.push({ name: 'Favorites' })" icon >
         <v-icon>mdi-heart</v-icon>
       </v-btn>
     </v-app-bar>

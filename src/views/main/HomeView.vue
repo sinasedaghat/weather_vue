@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { ref, computed, type Ref } from 'vue'
+import { ref, computed, watch, type Ref } from 'vue'
 import { useLocale } from 'vuetify'
-import { useFavoritesCitiesStore } from '@/stores/favorites_cities'
+// import { useFavoritesCitiesStore } from '@/stores/favorites_cities'
 import { useFavorites } from '@/composables/favorites'
 import { createURL } from '@/utils/createURL'
 import weatherAPI from '@/services/weather'
@@ -18,7 +18,7 @@ import sky from '@/assets/images/cloud-background.mp4'
 
   const { t } = useLocale()
   const { upgradeFavs } = useFavorites()
-  const favoritesCities = useFavoritesCitiesStore()
+  // const favoritesCities = useFavoritesCitiesStore()
   const valid: Ref<boolean> = ref(false)
   const city: Ref<string> = ref('')
   const weather: Ref<ExpandedWeather | null> = ref(null)
@@ -28,6 +28,16 @@ import sky from '@/assets/images/cloud-background.mp4'
   const analysisImageURL = computed(() => {
     return image.value.search(window.location.origin) == -1
   })
+
+  watch(
+    () => weather.value || pollution.value,
+    (x) => {
+      console.log(`from watch (x) ===>`, x)
+      console.log(`from watch (weather) ===>`, weather.value?.name)
+      console.log(`from watch (pollution) ===>`, pollution.value)
+    },
+    { immediate: true }
+  )
 
   const required = (v: string) => {
     return !!v || t('FIELD_IS_REQUIRED')
@@ -67,6 +77,16 @@ import sky from '@/assets/images/cloud-background.mp4'
     .catch(() => {
       image.value = createURL('city')
     })
+    // .finally(() => {
+    //   if(favoritesCities.citiesList.includes(city.value.toLowerCase())){
+    //     // console.log('ssssssss')
+    //     favoritesCities.minorUpdate(
+    //       new weatherModel().shrunkenAdapter(weather.value as ExpandedWeather),
+    //       image.value,
+    //       new pollutionModel().shrunkenAdapter(pollution.value as ExpandedPollution)
+    //     )
+    //   }
+    // })
   }
   const favAction = () => {
     upgradeFavs(weather.value?.name.toLowerCase() ?? '')
@@ -74,11 +94,11 @@ import sky from '@/assets/images/cloud-background.mp4'
     // const data = [
     //   new weatherModel().shrunkenAdapter(weather.value as ExpandedWeather)
     // ]
-    favoritesCities.minorUpdate(
-      new weatherModel().shrunkenAdapter(weather.value as ExpandedWeather),
-      image.value,
-      new pollutionModel().shrunkenAdapter(pollution.value as ExpandedPollution)
-    )
+    // favoritesCities.minorUpdate(
+    //   new weatherModel().shrunkenAdapter(weather.value as ExpandedWeather),
+    //   image.value,
+    //   new pollutionModel().shrunkenAdapter(pollution.value as ExpandedPollution)
+    // )
   }
 </script>
 
@@ -263,20 +283,23 @@ It is a long established fact that a reader will be distracted by the readable c
               location="end"
               width="250"
             >
+            <!-- :color="favoritesCities.citiesList.includes(weather?.name.toLowerCase()) ? 'error' : 'gray'" -->
               <template v-slot:activator="{ props }">
                 <v-icon 
                   v-bind="props" 
                   class="mb-n4" 
                   size="25" 
-                  :color="favoritesCities.citiesList.includes(weather?.name.toLowerCase()) ? 'error' : 'gray'"
+                  :color="false ? 'error' : 'gray'"
                   @click="favAction"
                 >
-                  {{ favoritesCities.citiesList.includes(weather?.name.toLowerCase()) ? 'mdi-heart' : 'mdi-heart-outline' }}
+                <!-- {{ favoritesCities.citiesList.includes(weather?.name.toLowerCase()) ? 'mdi-heart' : 'mdi-heart-outline' }} -->
+                  {{ false ? 'mdi-heart' : 'mdi-heart-outline' }}
                 </v-icon>
               </template>
               <span class="text-caption">{{
-                favoritesCities.citiesList.includes(weather?.name.toLowerCase()) ? 'Removal from the list of favorite cities' : 'Add to list of favorite cities'
+                false ? 'Removal from the list of favorite cities' : 'Add to list of favorite cities'
               }}</span>
+              <!-- favoritesCities.citiesList.includes(weather?.name.toLowerCase()) ? 'Removal from the list of favorite cities' : 'Add to list of favorite cities' -->
             </v-tooltip>
           </v-col>
         </v-row>

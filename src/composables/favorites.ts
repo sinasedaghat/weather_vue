@@ -20,7 +20,7 @@ export const useFavorites = () => {
       favCities.value = favCities.value.filter(item => item.toLowerCase() != city.toLowerCase()) : 
       favCities.value.push(city.toLowerCase())
     localStorage.setItem('favorites', favCities.value.join())
-    favoritesCities.updateCities(favCities)
+    // favoritesCities.updateCities(favCities)
     // localStorage.setItem('favorites',favCities.value.toString())
   }
 

@@ -2,6 +2,7 @@
 import { ref, computed, watch, type Ref } from 'vue'
 import { useLocale } from 'vuetify'
 // import { useFavoritesCitiesStore } from '@/stores/favorites_cities'
+import { useFavoritesStore } from '@/stores/favorites'
 import { useFavorites } from '@/composables/favorites'
 import { createURL } from '@/utils/createURL'
 import weatherAPI from '@/services/weather'
@@ -11,7 +12,7 @@ import weatherModel from '@/models/weather'
 import pollutionModel from '@/models/pollution'
 import type { ExpandedWeather } from '@/types/weather'
 import type { ExpandedPollution  } from '@/types/pollution'
-// import type { FavData } from '@/types/favorites'
+import type { FavData } from '@/types/favorites'
 import { chips as weatherChip } from '@/data/chips_weather'
 import { chips as pollutionChip } from '@/data/chips_pollution'
 import sky from '@/assets/images/cloud-background.mp4'
@@ -19,6 +20,7 @@ import sky from '@/assets/images/cloud-background.mp4'
   const { t } = useLocale()
   const { upgradeFavs } = useFavorites()
   // const favoritesCities = useFavoritesCitiesStore()
+  const favoritesStore = useFavoritesStore()
   const valid: Ref<boolean> = ref(false)
   const city: Ref<string> = ref('')
   const weather: Ref<ExpandedWeather | null> = ref(null)
@@ -29,15 +31,15 @@ import sky from '@/assets/images/cloud-background.mp4'
     return image.value.search(window.location.origin) == -1
   })
 
-  watch(
-    () => weather.value || pollution.value,
-    (x) => {
-      console.log(`from watch (x) ===>`, x)
-      console.log(`from watch (weather) ===>`, weather.value?.name)
-      console.log(`from watch (pollution) ===>`, pollution.value)
-    },
-    { immediate: true }
-  )
+  // watch(
+  //   () => weather.value || pollution.value,
+  //   (x) => {
+  //     console.log(`from watch (x) ===>`, x)
+  //     console.log(`from watch (weather) ===>`, weather.value?.name)
+  //     console.log(`from watch (pollution) ===>`, pollution.value)
+  //   },
+  //   { immediate: true }
+  // )
 
   const required = (v: string) => {
     return !!v || t('FIELD_IS_REQUIRED')
@@ -51,54 +53,55 @@ import sky from '@/assets/images/cloud-background.mp4'
     pollution.value = null
     image.value = createURL('magnifier', 'gif')
     weatherAPI.getWeather(city).then(async (response) => {
-      weather.value = await {...new weatherModel(response.data).expanded()}
+      const weatherObject = new weatherModel(response.data)
+      // console.log('favoritesStore.isFavorite(city.value) getPollution', favoritesStore.isFavorite(city.value)) 
+      // weather.value = await {...new weatherModel(response.data).expanded()}
+      weather.value = await { ...weatherObject.expanded() }
+      if(favoritesStore.isFavorite(city.value)) favoritesStore.updateCityWeather(city.value, weatherObject.shrunkenAdapter(weather.value))
       // Promise.allSettled([pollutionAPI.getPollution(city), imageAPI.getImage(city)]).then((values) => console.log(values))
-      await getPollution()
-      await getImage()
+      await getPollution(weather.value?.name)
+      await getImage(weather.value?.name)
     })
     .catch(() => {
       image.value = createURL('error')
     })
     .finally(() => {
-      city.value = ''
+      // city.value = ''
     })
   }
-  const getPollution = () => {
-    pollutionAPI.getPollution(city)
+  const getPollution = (town: string) => {
+    pollutionAPI.getPollution(town)
     .then(async (response) => {
-      if(response.data.status.toLocaleLowerCase() == 'ok')pollution.value = await {...new pollutionModel(response.data.data).expanded()}
+      if(response.data.status.toLocaleLowerCase() == 'ok') {
+        const pollutionObject = new pollutionModel(response.data.data)
+        pollution.value = await {...pollutionObject.expanded()}
+        // console.log('favoritesStore.isFavorite(city.value) getPollution', favoritesStore.isFavorite(city.value)) 
+        if(favoritesStore.isFavorite(town)) favoritesStore.updateCityPollution(town, pollutionObject.shrunkenAdapter(pollution.value))
+      }
     })
   }
-  const getImage = () => {
-    imageAPI.getImage(city)
+  const getImage = (town: string) => {
+    imageAPI.getImage(town)
     .then(async (response) => {
       image.value = response.data.images_results[Math.floor(Math. random()*5) + 1].original
     })
     .catch(() => {
       image.value = createURL('city')
     })
-    // .finally(() => {
-    //   if(favoritesCities.citiesList.includes(city.value.toLowerCase())){
-    //     // console.log('ssssssss')
-    //     favoritesCities.minorUpdate(
-    //       new weatherModel().shrunkenAdapter(weather.value as ExpandedWeather),
-    //       image.value,
-    //       new pollutionModel().shrunkenAdapter(pollution.value as ExpandedPollution)
-    //     )
-    //   }
-    // })
+    .finally(() => {
+      if(favoritesStore.isFavorite(town)) favoritesStore.updateCityImage(town, image.value)
+    })
   }
-  const favAction = () => {
-    upgradeFavs(weather.value?.name.toLowerCase() ?? '')
-    // FavData
-    // const data = [
-    //   new weatherModel().shrunkenAdapter(weather.value as ExpandedWeather)
-    // ]
-    // favoritesCities.minorUpdate(
-    //   new weatherModel().shrunkenAdapter(weather.value as ExpandedWeather),
-    //   image.value,
-    //   new pollutionModel().shrunkenAdapter(pollution.value as ExpandedPollution)
-    // )
+  const favAction = async() => {
+    await upgradeFavs(weather.value?.name.toLowerCase() ?? '')
+    await favoritesStore.updateCities(weather.value?.name.toLowerCase().trim() ?? '')
+    const data: FavData = {
+      image: image.value,
+      date: new Date()
+    }
+    if(weather.value?.name) data.weather = new weatherModel().shrunkenAdapter(weather.value)
+    if(pollution.value?.name) data.pollution = new pollutionModel().shrunkenAdapter(pollution.value)
+    favoritesStore.updateCityProperties(weather.value?.name as string, data)
   }
 </script>
 
@@ -283,23 +286,20 @@ It is a long established fact that a reader will be distracted by the readable c
               location="end"
               width="250"
             >
-            <!-- :color="favoritesCities.citiesList.includes(weather?.name.toLowerCase()) ? 'error' : 'gray'" -->
-              <template v-slot:activator="{ props }">
-                <v-icon 
-                  v-bind="props" 
-                  class="mb-n4" 
-                  size="25" 
-                  :color="false ? 'error' : 'gray'"
-                  @click="favAction"
-                >
-                <!-- {{ favoritesCities.citiesList.includes(weather?.name.toLowerCase()) ? 'mdi-heart' : 'mdi-heart-outline' }} -->
-                  {{ false ? 'mdi-heart' : 'mdi-heart-outline' }}
+            <template v-slot:activator="{ props }">
+              <v-icon 
+                v-bind="props" 
+                class="mb-n4" 
+                size="25" 
+                :color="favoritesStore.isFavorite(weather?.name.toLowerCase()) ? 'error' : 'gray'"
+                @click="favAction"
+              >
+                {{ favoritesStore.isFavorite(weather?.name.toLowerCase()) ? 'mdi-heart' : 'mdi-heart-outline' }}
                 </v-icon>
               </template>
               <span class="text-caption">{{
-                false ? 'Removal from the list of favorite cities' : 'Add to list of favorite cities'
+                favoritesStore.isFavorite(weather?.name.toLowerCase()) ? 'Removal from the list of favorite cities' : 'Add to list of favorite cities'
               }}</span>
-              <!-- favoritesCities.citiesList.includes(weather?.name.toLowerCase()) ? 'Removal from the list of favorite cities' : 'Add to list of favorite cities' -->
             </v-tooltip>
           </v-col>
         </v-row>

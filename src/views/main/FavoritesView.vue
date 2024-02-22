@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import FavoriteCard from '@/components/FavoriteCard.vue'
-// import { useFavoritesCitiesStore } from '@/stores/favorites_cities'
-  // const favoritesCities = useFavoritesCitiesStore()
+// import FavoriteCard from '@/components/FavoriteCard.vue'
+import { useFavoritesStore } from '@/stores/favorites'
+
+  const favoritesStore = useFavoritesStore() 
 
   const logData = () => {
     // console.log('logData ===>', favoritesCities.favData?.value)
@@ -12,6 +13,15 @@ import FavoriteCard from '@/components/FavoriteCard.vue'
 <template>
   <!-- FavoritesView ===> {{ favoritesCities.citiesList }} -->
   <h2 @click="logData">Favorites</h2>
+
+    {{ favoritesStore.cities }}
+    {{ favoritesStore.citiesDataList }}
+
+
+
+
+
+
   <!-- favData ===> {{ favoritesCities.favData }} -->
   <!-- <v-card
     class="mx-auto mt-16" 

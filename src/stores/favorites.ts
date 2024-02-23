@@ -13,7 +13,7 @@ export const useFavoritesStore = defineStore('favoritesStore', () => {
   const citiesDataList = computed(() => citiesData.value)
   const isFavorite = (city: Ref<string> | string) => {
     return computed(() => cities.value.includes(toValue(city).toLowerCase().trim())).value
-  };
+  }
 
   watch(
     cities, 

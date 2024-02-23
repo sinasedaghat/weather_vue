@@ -1,5 +1,10 @@
 <script setup lang="ts">
+import type { FavData } from '@/types/favorites'
+import { createURL } from '@/utils/createURL'
+import { capitalizeFirstLetters } from '@/utils/capitalize'
+
   interface Props {
+    data: FavData
     city: string
   }
   const props = defineProps<Props>()
@@ -7,10 +12,12 @@
 
 <template>
   <!-- :color="`${theme.themes.value.light.colors.primary}30`" -->
+  <!-- color="#44465580" -->
   <v-card
-    color="#44465580"
+    color="#ecf0f1"
     variant="flat"
     rounded="lg"
+    style="border: 2px solid #0167D8;"
   >
     <div class="d-flex flex-no-wrap justify-start">
       <v-avatar
@@ -19,51 +26,40 @@
         rounded="lg"
         style="border: 1px solid white;"
       >
-        <!-- <v-img 
-          :src="props.favorites.image" 
-          :alt="`${props.favorites.weather.name} image`" 
+        <v-img 
+          :src="props.data?.image || createURL('default-favorite')" 
+          :alt="`${props.data?.weather?.name} image`" 
           gradient="to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.5)"
           cover
-        /> -->
+        />
       </v-avatar>
       <div>
         <v-card-title class="pt-5">
-          <!-- <span class="text-h5 text-white" v-html="props.favorites.weather.location" /> -->
+          <span class="text-h6 font-weight-bold text-primary" v-html="capitalizeFirstLetters(city)" />
         </v-card-title>
 
-        <v-card-text>
-          <div>
-            <!-- <v-chip
-              v-for="tag in Object.values(weatherChip).filter(tag => weather && Boolean(weather[tag.value as 'wind' | 'pressure' | 'humidity' | 'visibility']))"
-              :key="tag.id"
-              class="me-2 mt-2"
-              density="comfortable"
-              :color="tag.color"
-            >
-              <small>
-                <span class="font-weight-bold me-1">{{ tag.label }}:</span>
-                <span class="font-weight-medium">{{ weather[tag.value as 'wind' | 'pressure' | 'humidity' | 'visibility'] }}</span>
-              </small>
-            </v-chip> -->
-            <!-- icon & description
+        <v-card-text class="ma-0">
+          <!-- {{ data }} -->
+          <div v-if="data.hasOwnProperty('weather')" style="border: 2px solid green">
+            <!-- icon & description -->
             <v-avatar size="60" class="mt-n3 me-n2">
-              <v-img :src="props.favorites.weather.icon" alt="Cloud Logo" />
+              <v-img :src="data?.weather?.icon" alt="Cloud Logo" />
               <v-tooltip
                 activator="parent"
                 location="end"
                 width="250"
               >
-                <span class="text-subtitle-2 font-weight-bold d-block">{{ t('WEATHER_TOOLTIP') }}</span>
-                <span class="text-caption font-weight-bold d-block ms-2">{{ props.favorites.weather.main }} - {{ props.favorites.weather.description }}</span>
+                <span class="text-subtitle-2 font-weight-bold d-block">{{ $t('WEATHER_TOOLTIP') }}</span>
+                <span class="text-caption font-weight-bold d-block ms-2">{{ data?.weather?.main }} - {{ data?.weather?.description }}</span>
                 <span class="text-caption d-block ms-2">
-                  The air temperature will be {{ props.favorites.weather.temp?.feels_like }}°C feels like, the maximum will be {{ props.favorites.weather.temp?.temp_max }}°C and the minimum will be {{ props.favorites.weather.temp?.temp_min }}°C.
+                  The air temperature will be {{ data?.weather?.temp?.feels_like }}°C feels like, the maximum will be {{ data?.weather?.temp?.temp_max }}°C and the minimum will be {{ data?.weather?.temp?.temp_min }}°C.
                 </span>
               </v-tooltip>
             </v-avatar>
-            temp
+            <!-- temp -->
             <span class="text-h4">
-              {{ props.favorites.weather.temp?.temp }}°C
-            </span> -->
+              {{ data?.weather?.temp?.temp }}°C
+            </span>
           </div>
           
 
@@ -99,13 +95,13 @@
             </v-col> -->
         </v-card-text>
 
-        <v-card-actions>
-          <!-- <v-btn
+        <!-- <v-card-actions>
+          <v-btn
             class="ms-2"
             icon="mdi-play"
             variant="text"
-          ></v-btn> -->
-        </v-card-actions>
+          ></v-btn>
+        </v-card-actions> -->
       </div>
     </div>
   </v-card>
@@ -116,8 +112,8 @@
     <v-col cols="auto">
       <v-avatar size="150" rounded="0" >
         <v-img 
-          :src="props.favorites.image" 
-          :alt="`${props.favorites.name} image`" 
+          :src="data?.image" ?
+          :alt="`${data?.name} i?mage`" 
           gradient="to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.5)"
           cover
         />
@@ -125,8 +121,8 @@
     </v-col>
     details
     <v-col align-self="start" cols="auto">
-      {{ props.favorites.location }}
-      {{ props.favorites }}
-    </v-col>
+      {{ data?.locatio?n }}
+      {{ data? }}
+    ?</v-col>
   </v-row> -->
 </template>

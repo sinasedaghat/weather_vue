@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { ref, computed, watch, type Ref } from 'vue'
+import { ref, computed } from 'vue'
+import type { Ref } from 'vue'
 import { useLocale } from 'vuetify'
-// import { useFavoritesCitiesStore } from '@/stores/favorites_cities'
 import { useFavoritesStore } from '@/stores/favorites'
 import { useFavorites } from '@/composables/favorites'
 import { createURL } from '@/utils/createURL'
@@ -19,7 +19,6 @@ import sky from '@/assets/images/cloud-background.mp4'
 
   const { t } = useLocale()
   const { upgradeFavs } = useFavorites()
-  // const favoritesCities = useFavoritesCitiesStore()
   const favoritesStore = useFavoritesStore()
   const valid: Ref<boolean> = ref(false)
   const city: Ref<string> = ref('')
@@ -30,16 +29,6 @@ import sky from '@/assets/images/cloud-background.mp4'
   const analysisImageURL = computed(() => {
     return image.value.search(window.location.origin) == -1
   })
-
-  // watch(
-  //   () => weather.value || pollution.value,
-  //   (x) => {
-  //     console.log(`from watch (x) ===>`, x)
-  //     console.log(`from watch (weather) ===>`, weather.value?.name)
-  //     console.log(`from watch (pollution) ===>`, pollution.value)
-  //   },
-  //   { immediate: true }
-  // )
 
   const required = (v: string) => {
     return !!v || t('FIELD_IS_REQUIRED')
@@ -54,8 +43,6 @@ import sky from '@/assets/images/cloud-background.mp4'
     image.value = createURL('magnifier', 'gif')
     weatherAPI.getWeather(city).then(async (response) => {
       const weatherObject = new weatherModel(response.data)
-      // console.log('favoritesStore.isFavorite(city.value) getPollution', favoritesStore.isFavorite(city.value)) 
-      // weather.value = await {...new weatherModel(response.data).expanded()}
       weather.value = await { ...weatherObject.expanded() }
       if(favoritesStore.isFavorite(city.value)) favoritesStore.updateCityWeather(city.value, weatherObject.shrunkenAdapter(weather.value))
       // Promise.allSettled([pollutionAPI.getPollution(city), imageAPI.getImage(city)]).then((values) => console.log(values))
@@ -66,7 +53,7 @@ import sky from '@/assets/images/cloud-background.mp4'
       image.value = createURL('error')
     })
     .finally(() => {
-      // city.value = ''
+      city.value = ''
     })
   }
   const getPollution = (town: string) => {
@@ -75,7 +62,6 @@ import sky from '@/assets/images/cloud-background.mp4'
       if(response.data.status.toLocaleLowerCase() == 'ok') {
         const pollutionObject = new pollutionModel(response.data.data)
         pollution.value = await {...pollutionObject.expanded()}
-        // console.log('favoritesStore.isFavorite(city.value) getPollution', favoritesStore.isFavorite(city.value)) 
         if(favoritesStore.isFavorite(town)) favoritesStore.updateCityPollution(town, pollutionObject.shrunkenAdapter(pollution.value))
       }
     })
@@ -125,8 +111,6 @@ import sky from '@/assets/images/cloud-background.mp4'
           <v-row align="center" justify="center" dense>
             <!-- city text field -->
             <v-col cols="10">
-              <!-- @keyup.enter.prevent="search" -->
-              <!-- @keyup.enter.prevent="'submit'" -->
               <v-text-field
                 v-model="city"
                 class="elevation-0"
@@ -155,7 +139,6 @@ import sky from '@/assets/images/cloud-background.mp4'
         </v-form>
       </v-card-text>
     </v-card>
-    
     <!-- result data -->
     <v-card
       rounded="xl"
@@ -208,21 +191,7 @@ import sky from '@/assets/images/cloud-background.mp4'
               />
             </v-col>
           </v-row>
-        </v-card-title>
-        <!-- decription app -->
-        <v-card-title v-else>
-          <!-- <v-row align="start" justify="start" dense>
-            <v-col class="ma-0 pa-0" cols="12"> -->
-              <span class="text-caption">
-                <!-- It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
-Why do we use it?
-
-It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like). -->
-
-              </span>
-            <!-- </v-col>
-          </v-row> -->
-        </v-card-title>
+        </v-card-title>        
       </v-img>
       <!-- details -->
       <v-card-text v-if="weather">
@@ -339,6 +308,10 @@ It is a long established fact that a reader will be distracted by the readable c
           </v-col>
         </v-row>
       </v-card-text>
+      <!-- decription app -->
+      <v-card-text v-else>
+        readme comming soon ...
+      </v-card-text>
     </v-card>
   </v-container>
 </template>
@@ -353,13 +326,4 @@ It is a long established fact that a reader will be distracted by the readable c
   min-height: 100%;
   object-fit: cover;
 }
-/* .content {
-  position: fixed;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  color: #f1f1f1;
-  width: 100%;
-  height: 100%;
-  padding: 20px;
-} */
 </style>

@@ -1,48 +1,47 @@
 <script setup lang="ts">
-// import FavoriteCard from '@/components/FavoriteCard.vue'
+import FavoriteCard from '@/components/FavoriteCard.vue'
 import { useFavoritesStore } from '@/stores/favorites'
 
   const favoritesStore = useFavoritesStore() 
-
-  const logData = () => {
-    // console.log('logData ===>', favoritesCities.favData?.value)
-  }
 
 </script>
 
 <template>
   <!-- FavoritesView ===> {{ favoritesCities.citiesList }} -->
-  <h2 @click="logData">Favorites</h2>
+  <h2>Favorites</h2>
 
     {{ favoritesStore.cities }}
     {{ favoritesStore.citiesDataList }}
 
 
 
-
+    
 
 
   <!-- favData ===> {{ favoritesCities.favData }} -->
-  <!-- <v-card
+  <v-card
     class="mx-auto mt-16" 
     variant="flat"
     max-width="1100px"
   >
-  <v-row align="start" justify="start" dense>
+  <v-row align="stretch" justify="start" dense>
     <v-col 
-      v-for="(city, i) in favoritesCities.citiesList"
-      :key="i"
+      v-for="(data, city) in favoritesStore.citiesDataList"
+      :key="city"
       align-self="start"
       cols="12"
       md="6"
+      class="fill-height"
+      style="border: 2px solid red;"
     >
       <FavoriteCard
-        :city="city"
+        :data="data"
+        :city="(city as string)"
       />
     </v-col>
   </v-row>
     
-  </v-card> -->
+  </v-card>
 
 
 

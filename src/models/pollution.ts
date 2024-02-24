@@ -14,7 +14,6 @@ class PollutionModels {
   }
 
   expanded(): ExpandedPollution {
-    // console.log('data from model', this._airPollutionLevel(500) || 'HAZARDOUS')
     const expandedPollution: ExpandedPollution = {
       id: this._data.idx || 0,
       name: this._data.city.name || '',

@@ -3,7 +3,7 @@ import { type ShrunkenPollution } from './pollution'
 
 export type FavData = {
   weather?: ShrunkenWeather
-  pollution?: Partial<ShrunkenPollution>
+  pollution?: ShrunkenPollution
   date?: Date
   image?: string 
 }

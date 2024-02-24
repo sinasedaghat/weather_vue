@@ -1,9 +1,3 @@
-// co?: pollutant
-//   no2?: pollutant
-//   // pm10: number
-//   pm25?: pollutant
-//   so2?: pollutant
-
 const chips = {
   pm25: {
     id: 0,

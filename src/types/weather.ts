@@ -5,7 +5,7 @@ type Temp = {
   temp_max: number
 }
 
-type ShrunkenPick = 'id' | 'city_id' | 'name' | 'country' | 'location' | 'main' | 'description' | 'icon' | 'temp'
+// type ShrunkenPick = 'id' | 'city_id' | 'name' | 'country' | 'location' | 'main' | 'description' | 'icon' | 'temp'
 
 type ShrunkenOmit = 'code' | 'city_id' | 'shift_timezone' | 'date' | 'country' | 'wind' | 'visibility' | 'humidity' | 'pressure'
 

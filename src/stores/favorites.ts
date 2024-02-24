@@ -53,7 +53,8 @@ export const useFavoritesStore = defineStore('favoritesStore', () => {
       ...citiesData.value,
       [toValue(city).toLowerCase().trim()]: {
         ...citiesData.value?.[toValue(city).toLowerCase().trim()],
-        weather: toValue(weather)
+        weather: toValue(weather),
+        date: new Date()
       }
     }
   }
@@ -62,7 +63,8 @@ export const useFavoritesStore = defineStore('favoritesStore', () => {
       ...citiesData.value,
       [toValue(city).toLowerCase().trim()]: {
         ...citiesData.value?.[toValue(city).toLowerCase().trim()],
-        pollution: toValue(pollution)
+        pollution: toValue(pollution),
+        date: new Date()
       }
     }
   }
@@ -71,7 +73,8 @@ export const useFavoritesStore = defineStore('favoritesStore', () => {
       ...citiesData.value,
       [toValue(city).toLowerCase().trim()]: {
         ...citiesData.value?.[toValue(city).toLowerCase().trim()],
-        image: toValue(image)
+        image: toValue(image),
+        date: new Date()
       }
     }
   }
@@ -85,19 +88,6 @@ export const useFavoritesStore = defineStore('favoritesStore', () => {
     }
   }
 
-  // const setCityWeather = (city: Ref<string> | string, weather: Ref<ShrunkenWeather> | ShrunkenWeather) => {
-    
-  // }
-  // watch(
-  //   todoId,
-  //   async () => {
-  //     const response = await fetch(
-  //       `https://jsonplaceholder.typicode.com/todos/${todoId.value}`
-  //     )
-  //     data.value = await response.json()
-  //   },
-  //   { immediate: true }
-  // )
   return {
     cities, citiesData,
     hasFavorite, citiesList, citiesDataList, isFavorite,

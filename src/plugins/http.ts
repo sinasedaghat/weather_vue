@@ -1,17 +1,10 @@
 import axios from "axios";
 
 const baseConfig = { // AxiosRequestConfig
-  // baseURL: import.meta.env.VITE_BASE_URL,
   headers: {
     "Content-type": "application/json",
-    // "Access-Control-Allow-Origin": "*",
-    // "Access-Control-Allow-Origin": "http://localhost:5173/",
-    // "Access-Control-Allow-Credentials": "true"
+    // baseURL: import.meta.env.VITE_BASE_URL,
   },
-
-
-    // headers.append('Access-Control-Allow-Origin', 'http://localhost:3000');
-// headers.append('Access-Control-Allow-Credentials', 'true');
 }
 const http = axios.create(baseConfig) // AxiosInstance
 

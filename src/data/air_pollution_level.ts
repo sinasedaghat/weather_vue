@@ -8,17 +8,6 @@ enum APL {
   HAZARDOUS
 }
 
-
-// {
-//   [k: string]: {
-//     id: number
-//     icon: string
-//     label: string
-//     color: string
-//     desc: string
-//   }
-// }
-
 const APLDescription = {
   GOOD: {
     id: 0,

@@ -76,8 +76,6 @@ class WeatherModels {
 
   shrunkenAdapter(data?: ExpandedWeather): ShrunkenWeather {
     return data ? this._shrunkenData(data) : this._shrunkenResponse()
-    // if(data) return this._shrunkenData(data)
-    // else return this._shrunkenResponse()
   }
 }
 

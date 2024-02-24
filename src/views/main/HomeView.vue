@@ -41,7 +41,8 @@ import sky from '@/assets/images/cloud-background.mp4'
     weather.value = null
     pollution.value = null
     image.value = createURL('magnifier', 'gif')
-    weatherAPI.getWeather(city).then(async (response) => {
+    weatherAPI.getWeather(city)
+    .then(async (response) => {
       const weatherObject = new weatherModel(response.data)
       weather.value = await { ...weatherObject.expanded() }
       if(favoritesStore.isFavorite(city.value)) favoritesStore.updateCityWeather(city.value, weatherObject.shrunkenAdapter(weather.value))
@@ -70,12 +71,11 @@ import sky from '@/assets/images/cloud-background.mp4'
     imageAPI.getImage(town)
     .then(async (response) => {
       image.value = response.data.images_results[Math.floor(Math. random()*5) + 1].original
+      if(favoritesStore.isFavorite(town)) favoritesStore.updateCityImage(town, image.value)
     })
     .catch(() => {
       image.value = createURL('city')
-    })
-    .finally(() => {
-      if(favoritesStore.isFavorite(town)) favoritesStore.updateCityImage(town, image.value)
+      if(favoritesStore.isFavorite(town)) favoritesStore.updateCityImage(town, createURL('default-favorite'))
     })
   }
   const favAction = async() => {
@@ -124,7 +124,6 @@ import sky from '@/assets/images/cloud-background.mp4'
             </v-col>
             <!-- search button -->
             <v-col cols="auto">
-              <!-- @click="search" -->
               <v-btn 
                 :disabled="!valid"
                 type="submit"

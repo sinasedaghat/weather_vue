@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHistory, type RouteLocationNormalized } from 'vue-router'
 import MainView from '@/views/MainView.vue'
 import HomeView from '@/views/main/HomeView.vue'
 
@@ -12,12 +12,16 @@ const router = createRouter({
       children: [
         {
           path: '/',
-          name: 'home',
-          component: HomeView
+          name: 'Home',
+          component: HomeView,
+          props: (route: RouteLocationNormalized) => ({ 
+            default: true,
+            q: route.query.city
+          })
         },
         {
           path: '/favorites',
-          name: 'favorites',
+          name: 'Favorites',
           component: () =>  import('@/views/main/FavoritesView.vue')
         },
       ]

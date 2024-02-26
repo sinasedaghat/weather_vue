@@ -1,13 +1,12 @@
-import { type ExpandedWeather } from '@/types/weather'
+import type { ExpandedWeather, ShrunkenWeather } from '@/types/weather'
 import countries from '@/assets/json/countries.json'
 import { Directions } from '@/data/wind_directions'
 
 class WeatherModels {
-  private _data: any
-  // contries = countries as {[K: string]: {[T: string]: string | null}}
+  private _data?: any
   countriesMap: { [key: string]: { [subKey: string]: string | null } } = countries
 
-  constructor(data: any) {
+  constructor(data?: any) {
     this._data = data
   }
 
@@ -17,10 +16,8 @@ class WeatherModels {
   }
 
   expanded(): ExpandedWeather {
-    // const sss = new Date(this._data.timezone * 1000)
-    // console.log(this._data.timezone, 'data from model', sss)
     const expandedWeather: ExpandedWeather = {
-      id: this._data.weather[0].id, // 
+      id: this._data.weather[0].id,
       city_id: this._data.id,
       shift_timezone: this._data.timezone,
       name: this._data.name || '',
@@ -43,7 +40,40 @@ class WeatherModels {
     return expandedWeather
   }
 
-  shrunken() {}
+  private _shrunkenResponse(): ShrunkenWeather {
+    const shrunkenWeather: ShrunkenWeather = {
+      id: this._data.weather[0].id,
+      name: this._data.name || '',
+      location:  `${this._data.name || ''}, ${this.countriesMap[this._data.sys.country.toLowerCase()].name_en || ''}`,
+      main: this._data.weather[0].main,
+      description: this._data.weather[0].description,
+      icon: `https://openweathermap.org/img/wn/${this._data?.weather[0]?.icon}@4x.png`,
+      temp: {
+        temp: Math.round(this._data.main.temp),
+        feels_like: Math.round(this._data.main.feels_like),
+        temp_min: Math.round(this._data.main.temp_min),
+        temp_max: Math.round(this._data.main.temp_max),
+      },
+    }
+    return shrunkenWeather
+  }
+
+  private _shrunkenData(data: ExpandedWeather): ShrunkenWeather {
+    const shrunkenWeather: ShrunkenWeather = {
+      id: data.id,
+      name: data.name,
+      location:  data.location,
+      main: data.main,
+      description: data.description,
+      icon: data.icon,
+      temp: Object.assign(data.temp) // shallow copy is good because properties of temp are primitive
+    }
+    return shrunkenWeather
+  }
+
+  shrunkenAdapter(data?: ExpandedWeather): ShrunkenWeather {
+    return data ? this._shrunkenData(data) : this._shrunkenResponse()
+  }
 }
 
 export default WeatherModels

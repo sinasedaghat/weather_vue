@@ -1,21 +1,21 @@
 import { onMounted, ref, type Ref } from "vue"
+import { useFavoritesStore } from "@/stores/favorites"
 
-// export function useFavorites() {
 export const useFavorites = () => {
+  const favoritesStore = useFavoritesStore()
   const favCities: Ref<string[]> = ref([])
 
   onMounted(() => {
     favCities.value = localStorage.getItem('favorites')?.split(',') ?? []
-    // console.log('message from Favorites composable')
+    favoritesStore.updateBulkCities(favCities.value)
   })
 
-  const updateFavs = (city: string) => {
+  const upgradeFavs = (city: string) => {
     favCities.value.includes(city.toLowerCase()) ? 
       favCities.value = favCities.value.filter(item => item.toLowerCase() != city.toLowerCase()) : 
       favCities.value.push(city.toLowerCase())
     localStorage.setItem('favorites', favCities.value.join())
-    // localStorage.setItem('favorites',favCities.value.toString())
   }
 
-  return { favCities, updateFavs }
+  return { favCities, upgradeFavs }
 }

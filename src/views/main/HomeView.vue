@@ -1,26 +1,41 @@
 <script setup lang="ts">
-import { ref, computed, type Ref } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import type { Ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { useLocale } from 'vuetify'
+import { useFavoritesStore } from '@/stores/favorites'
+import { useFavorites } from '@/composables/favorites'
+import { createURL } from '@/utils/createURL'
 import weatherAPI from '@/services/weather'
 import pollutionAPI from '@/services/pollution'
 import imageAPI from '@/services/image'
 import weatherModel from '@/models/weather'
 import pollutionModel from '@/models/pollution'
-import { type ExpandedWeather } from '@/types/weather'
-import { type ExpandedPollution  } from '@/types/pollution'
+import type { ExpandedWeather } from '@/types/weather'
+import type { ExpandedPollution  } from '@/types/pollution'
+import type { FavData } from '@/types/favorites'
 import { chips as weatherChip } from '@/data/chips_weather'
 import { chips as pollutionChip } from '@/data/chips_pollution'
-import { createURL } from '@/utils/createURL'
-import { useFavorites } from '@/composables/favorites'
 import sky from '@/assets/images/cloud-background.mp4'
 
+  interface Props {
+    q: string
+  }
+  const router = useRouter()
   const { t } = useLocale()
+  const favoritesStore = useFavoritesStore()
+  const { upgradeFavs } = useFavorites()
+  const props = defineProps<Props>()
+
   const valid: Ref<boolean> = ref(false)
   const city: Ref<string> = ref('')
   const weather: Ref<ExpandedWeather | null> = ref(null)
   const pollution: Ref< ExpandedPollution | null> = ref(null)
   const image: Ref<string> = ref(createURL('default-cart'))
-  const { favCities, updateFavs } = useFavorites()
+
+  onMounted(() => {
+    if(props.q) search(props.q.trim().toLowerCase())
+  })
 
   const analysisImageURL = computed(() => {
     return image.value.search(window.location.origin) == -1
@@ -29,58 +44,62 @@ import sky from '@/assets/images/cloud-background.mp4'
   const required = (v: string) => {
     return !!v || t('FIELD_IS_REQUIRED')
   }
-
   const difrent = (v: string) => {
     return !!v && v.toLocaleLowerCase() != weather?.value?.name.toLocaleLowerCase() || t('FIELD_IS_REQUIRED')
   }
-  
-  // const getWeather = () => {
-  //   weatherAPI.getWeather(city)
-  //   .then(async (response) => {
-  //     weather.value = await {...new weatherModel(response.data).expanded()}
-  //   })
-  //   .catch(() => {
-  //     // console.log(error)
-  //     image.value = createURL('error')
-  //   })
-  //   .finally(() => {
-  //     console.log('finally')
-  //   })
-  // }
 
-  const getPollution = () => {
-    pollutionAPI.getPollution(city)
-    .then(async (response) => {
-      if(response.data.status.toLocaleLowerCase() == 'ok')pollution.value = await {...new pollutionModel(response.data.data).expanded()}
-    })
-  }
-
-  const getImage = () => {
-    imageAPI.getImage(city)
-    .then(async (response) => {
-      image.value = response.data.images_results[Math.floor(Math. random()*5) + 1].original
-    })
-    .catch(() => {
-      image.value = createURL('city')
-    })
-  }
-
-  const search = () => {
+  const search = (town?: string) => {
     weather.value = null
     pollution.value = null
     image.value = createURL('magnifier', 'gif')
-    weatherAPI.getWeather(city).then(async (response) => {
-      weather.value = await {...new weatherModel(response.data).expanded()}
+    weatherAPI.getWeather(town ?? city)
+    .then(async (response) => {
+      const weatherObject = new weatherModel(response.data)
+      weather.value = await { ...weatherObject.expanded() }
+      if(favoritesStore.isFavorite(town ?? city.value)) favoritesStore.updateCityWeather(town ?? city.value, weatherObject.shrunkenAdapter(weather.value))
       // Promise.allSettled([pollutionAPI.getPollution(city), imageAPI.getImage(city)]).then((values) => console.log(values))
-      await getPollution()
-      await getImage()
+      await getPollution(weather.value?.name)
+      await getImage(weather.value?.name)
     })
     .catch(() => {
       image.value = createURL('error')
     })
     .finally(() => {
       city.value = ''
+      router.replace({ path: '/' })
     })
+  }
+  const getPollution = (town: string) => {
+    pollutionAPI.getPollution(town)
+    .then(async (response) => {
+      if(response.data.status.toLocaleLowerCase() == 'ok') {
+        const pollutionObject = new pollutionModel(response.data.data)
+        pollution.value = await {...pollutionObject.expanded()}
+        if(favoritesStore.isFavorite(town)) favoritesStore.updateCityPollution(town, pollutionObject.shrunkenAdapter(pollution.value))
+      }
+    })
+  }
+  const getImage = (town: string) => {
+    imageAPI.getImage(town)
+    .then(async (response) => {
+      image.value = response.data.images_results[Math.floor(Math. random()*5) + 1].original
+      if(favoritesStore.isFavorite(town)) favoritesStore.updateCityImage(town, image.value)
+    })
+    .catch(() => {
+      image.value = createURL('city')
+      if(favoritesStore.isFavorite(town)) favoritesStore.updateCityImage(town, createURL('default-favorite'))
+    })
+  }
+  const favAction = async() => {
+    await upgradeFavs(weather.value?.name.toLowerCase() ?? '')
+    await favoritesStore.updateCities(weather.value?.name.toLowerCase().trim() ?? '')
+    const data: FavData = {
+      image: image.value,
+      date: new Date()
+    }
+    if(weather.value?.name) data.weather = new weatherModel().shrunkenAdapter(weather.value)
+    if(pollution.value?.name) data.pollution = new pollutionModel().shrunkenAdapter(pollution.value)
+    favoritesStore.updateCityProperties(weather.value?.name as string, data)
   }
 </script>
 
@@ -100,12 +119,10 @@ import sky from '@/assets/images/cloud-background.mp4'
       max-height="100px"
     >
       <v-card-text>
-        <v-form v-model="valid" @submit.prevent="search">
+        <v-form v-model="valid" @submit.prevent="search()">
           <v-row align="center" justify="center" dense>
             <!-- city text field -->
             <v-col cols="10">
-              <!-- @keyup.enter.prevent="search" -->
-              <!-- @keyup.enter.prevent="'submit'" -->
               <v-text-field
                 v-model="city"
                 class="elevation-0"
@@ -119,7 +136,6 @@ import sky from '@/assets/images/cloud-background.mp4'
             </v-col>
             <!-- search button -->
             <v-col cols="auto">
-              <!-- @click="search" -->
               <v-btn 
                 :disabled="!valid"
                 type="submit"
@@ -134,7 +150,6 @@ import sky from '@/assets/images/cloud-background.mp4'
         </v-form>
       </v-card-text>
     </v-card>
-    
     <!-- result data -->
     <v-card
       rounded="xl"
@@ -187,21 +202,7 @@ import sky from '@/assets/images/cloud-background.mp4'
               />
             </v-col>
           </v-row>
-        </v-card-title>
-        <!-- decription app -->
-        <v-card-title v-else>
-          <!-- <v-row align="start" justify="start" dense>
-            <v-col class="ma-0 pa-0" cols="12"> -->
-              <span class="text-caption">
-                <!-- It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
-Why do we use it?
-
-It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like). -->
-
-              </span>
-            <!-- </v-col>
-          </v-row> -->
-        </v-card-title>
+        </v-card-title>        
       </v-img>
       <!-- details -->
       <v-card-text v-if="weather">
@@ -265,19 +266,19 @@ It is a long established fact that a reader will be distracted by the readable c
               location="end"
               width="250"
             >
-              <template v-slot:activator="{ props }">
-                <v-icon 
-                  v-bind="props" 
-                  class="mb-n4" 
-                  size="25" 
-                  :color="favCities.includes(weather?.name.toLowerCase()) ? 'error' : 'gray'"
-                  @click="updateFavs(weather?.name.toLowerCase())"
-                >
-                  {{ favCities.includes(weather?.name.toLowerCase()) ? 'mdi-heart' : 'mdi-heart-outline' }}
+            <template v-slot:activator="{ props }">
+              <v-icon 
+                v-bind="props" 
+                class="mb-n4" 
+                size="25" 
+                :color="favoritesStore.isFavorite(weather?.name.toLowerCase()) ? 'error' : 'gray'"
+                @click="favAction"
+              >
+                {{ favoritesStore.isFavorite(weather?.name.toLowerCase()) ? 'mdi-heart' : 'mdi-heart-outline' }}
                 </v-icon>
               </template>
               <span class="text-caption">{{
-                favCities.includes(weather?.name.toLowerCase()) ? 'Removal from the list of favorite cities' : 'Add to list of favorite cities'
+                favoritesStore.isFavorite(weather?.name.toLowerCase()) ? 'Removal from the list of favorite cities' : 'Add to list of favorite cities'
               }}</span>
             </v-tooltip>
           </v-col>
@@ -318,6 +319,10 @@ It is a long established fact that a reader will be distracted by the readable c
           </v-col>
         </v-row>
       </v-card-text>
+      <!-- decription app -->
+      <v-card-text v-else>
+        readme comming soon ...
+      </v-card-text>
     </v-card>
   </v-container>
 </template>
@@ -332,13 +337,4 @@ It is a long established fact that a reader will be distracted by the readable c
   min-height: 100%;
   object-fit: cover;
 }
-/* .content {
-  position: fixed;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  color: #f1f1f1;
-  width: 100%;
-  height: 100%;
-  padding: 20px;
-} */
 </style>

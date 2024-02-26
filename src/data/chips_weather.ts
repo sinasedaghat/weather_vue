@@ -1,8 +1,3 @@
-// wind?: string
-// visibility?: string
-// humidity?: string
-// pressure?: string
-
 const chips = {
   wind: {
     id: 0,

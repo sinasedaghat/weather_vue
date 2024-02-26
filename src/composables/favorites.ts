@@ -6,7 +6,7 @@ export const useFavorites = () => {
   const favCities: Ref<string[]> = ref([])
 
   onMounted(() => {
-    favCities.value = localStorage.getItem('favorites')?.split(',') ?? []
+    if(localStorage.getItem('favorites')) favCities.value = localStorage.getItem('favorites')?.split(',') ?? []
     favoritesStore.updateBulkCities(favCities.value)
   })
 

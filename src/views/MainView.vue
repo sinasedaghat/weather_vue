@@ -44,7 +44,6 @@ import { useFavoritesStore } from '@/stores/favorites';
       <!-- home route -->
       <v-btn
         v-if="route.name !== 'Home'"
-        :disabled="!hasFavorite" 
         icon
         @click="router.push({ name: 'Home' })"
       >

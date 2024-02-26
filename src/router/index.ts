@@ -37,4 +37,10 @@ const router = createRouter({
   ]
 })
 
+router.beforeEach((to, from, next) => {
+  const hasFave = Boolean(localStorage.getItem('favorites'))
+  if (to.name == 'Favorites') hasFave ? next() : next({ name: 'Home'})
+  else next()
+})
+
 export default router

@@ -4,7 +4,6 @@ import { Directions } from '@/data/wind_directions'
 
 class WeatherModels {
   private _data?: any
-  // contries = countries as {[K: string]: {[T: string]: string | null}}
   countriesMap: { [key: string]: { [subKey: string]: string | null } } = countries
 
   constructor(data?: any) {
@@ -17,8 +16,6 @@ class WeatherModels {
   }
 
   expanded(): ExpandedWeather {
-    // const sss = new Date(this._data.timezone * 1000)
-    // console.log(this._data.timezone, 'data from model', sss)
     const expandedWeather: ExpandedWeather = {
       id: this._data.weather[0].id,
       city_id: this._data.id,

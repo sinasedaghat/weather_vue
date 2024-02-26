@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import type { Ref } from 'vue'
+import { useRouter } from 'vue-router'
 import type { FavData } from '@/types/favorites'
 import { createURL } from '@/utils/createURL'
 import { capitalizeFirstLetters } from '@/utils/capitalize'
@@ -9,16 +10,26 @@ import weatherAPI from '@/services/weather'
 import pollutionAPI from '@/services/pollution'
 import weatherModel from '@/models/weather'
 import pollutionModel from '@/models/pollution'
-
-const emit = defineEmits(['updateData'])
+import imageAPI from '@/services/image'
 
   interface Props {
     data: FavData
     city: string
+    time: number
   }
 
+  const router = useRouter()
   const props = defineProps<Props>()
+  const emit = defineEmits<{
+    updateData: [data: Ref<FavData> | FavData]
+    upgradeFavorites: [city: string]
+  }>()
+
   const cityData: Ref<FavData> = ref({})
+
+  const canRefetch = computed(() => {
+    return (+props.time - +new Date(props.data?.date as Date).getTime() > 600000)
+  })
 
   onMounted(() => {
     if(!props.data?.date) {
@@ -32,10 +43,11 @@ const emit = defineEmits(['updateData'])
     weatherAPI.getWeather(props.city)
     .then(async (response) => {
       cityData.value.weather = await { ...new weatherModel(response.data).shrunkenAdapter() }
-      emit('updateData', cityData.value)
     })
     .catch(() => {
       cityData.value.image = createURL('error')
+    })
+    .finally(() => {
       emit('updateData', cityData.value)
     })
   }
@@ -48,6 +60,26 @@ const emit = defineEmits(['updateData'])
         emit('updateData', cityData.value)
       }
     })
+  }
+
+  const getImage = () => {
+    imageAPI.getImage(props.city)
+    .then(async (response) => {
+      cityData.value.image = response.data.images_results[Math.floor(Math. random()*5) + 1].original
+    })
+    .catch(() => {
+      cityData.value.image = createURL('default-favorite')
+    })
+    .finally(() => {
+      emit('updateData', cityData.value)
+    })
+  }
+
+  const reetch = () => {
+    cityData.value.date = new Date
+    getWeather()
+    getPollution()
+    getImage()
   }
 </script>
 
@@ -151,19 +183,14 @@ const emit = defineEmits(['updateData'])
         v-html="`Updated on <span class='font-weight-bold'>${localTime(data.date)}</span>`" 
       />
       <v-spacer />
-
-      <!-- extensive data -->
-      <v-btn density="compact" icon color="primary">
-        <v-icon size="small">mdi-open-in-new</v-icon>
-        <v-tooltip
-          activator="parent"
-          location="start"
-        >
-          <span class="text-caption" v-text="'See extensive data'" />
-        </v-tooltip>
-      </v-btn>
       <!-- update data -->
-      <v-btn density="compact" icon color="success">
+      <v-btn 
+        :disabled="!canRefetch"
+        density="compact" 
+        icon 
+        color="success"
+        @click="reetch"
+      >
         <v-icon size="small">mdi-update</v-icon>
         <v-tooltip
           activator="parent"
@@ -172,10 +199,28 @@ const emit = defineEmits(['updateData'])
           <span class="text-caption" v-text="'Update the data'" />
         </v-tooltip>
       </v-btn>
-
-
+      <!-- extensive data -->
+      <v-btn 
+        density="compact" 
+        icon 
+        color="primary"
+        @click="router.push({ path: '/', query: { city: props.city }})"
+      >
+        <v-icon size="small">mdi-open-in-new</v-icon>
+        <v-tooltip
+          activator="parent"
+          location="start"
+        >
+          <span class="text-caption" v-text="'See extensive data'" />
+        </v-tooltip>
+      </v-btn>
       <!-- remove favorite -->
-      <v-btn density="compact" icon color="error">
+      <v-btn
+        density="compact" 
+        icon 
+        color="error"
+        @click="emit('upgradeFavorites', city)"
+      >
         <v-icon size="small">mdi-heart</v-icon>
         <v-tooltip
           activator="parent"

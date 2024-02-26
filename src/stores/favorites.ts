@@ -18,7 +18,6 @@ export const useFavoritesStore = defineStore('favoritesStore', () => {
   watch(
     cities, 
     () => {
-      console.log('citeis from favorites statemanagement', cities.value)
       citiesData.value = toValue(cities.value).reduce((obj, key) => {
         return {
           // ...citiesData.value,
@@ -36,6 +35,7 @@ export const useFavoritesStore = defineStore('favoritesStore', () => {
   const updateBulkCities = (bulkCities: string[]) => {
     cities.value = [ ...bulkCities ]
   }
+
   const updateCities = (city: string) => {
     if(cities.value.includes(city.toLowerCase().trim())) {
       cities.value = cities.value.filter(item => item != city.toLowerCase().trim())
@@ -88,10 +88,16 @@ export const useFavoritesStore = defineStore('favoritesStore', () => {
     }
   }
 
+  const removeCity = (city: Ref<string> | string) => {
+    cities.value = cities.value.filter(item => item.trim().toLowerCase() != toValue(city).trim().toLowerCase())
+    if(citiesData.value) delete citiesData.value?.[toValue(city)]
+  }
+
   return {
     cities, citiesData,
     hasFavorite, citiesList, citiesDataList, isFavorite,
     updateBulkCities, updateCities, 
-    updateCityWeather, updateCityPollution, updateCityImage, updateCityProperties
+    updateCityWeather, updateCityPollution, updateCityImage, updateCityProperties,
+    removeCity
   }
 })

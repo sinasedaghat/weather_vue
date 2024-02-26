@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import type { Ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { useLocale } from 'vuetify'
 import { useFavoritesStore } from '@/stores/favorites'
 import { useFavorites } from '@/composables/favorites'
@@ -17,14 +18,24 @@ import { chips as weatherChip } from '@/data/chips_weather'
 import { chips as pollutionChip } from '@/data/chips_pollution'
 import sky from '@/assets/images/cloud-background.mp4'
 
+  interface Props {
+    q: string
+  }
+  const router = useRouter()
   const { t } = useLocale()
-  const { upgradeFavs } = useFavorites()
   const favoritesStore = useFavoritesStore()
+  const { upgradeFavs } = useFavorites()
+  const props = defineProps<Props>()
+
   const valid: Ref<boolean> = ref(false)
   const city: Ref<string> = ref('')
   const weather: Ref<ExpandedWeather | null> = ref(null)
   const pollution: Ref< ExpandedPollution | null> = ref(null)
   const image: Ref<string> = ref(createURL('default-cart'))
+
+  onMounted(() => {
+    if(props.q) search(props.q.trim().toLowerCase())
+  })
 
   const analysisImageURL = computed(() => {
     return image.value.search(window.location.origin) == -1
@@ -37,15 +48,15 @@ import sky from '@/assets/images/cloud-background.mp4'
     return !!v && v.toLocaleLowerCase() != weather?.value?.name.toLocaleLowerCase() || t('FIELD_IS_REQUIRED')
   }
 
-  const search = () => {
+  const search = (town?: string) => {
     weather.value = null
     pollution.value = null
     image.value = createURL('magnifier', 'gif')
-    weatherAPI.getWeather(city)
+    weatherAPI.getWeather(town ?? city)
     .then(async (response) => {
       const weatherObject = new weatherModel(response.data)
       weather.value = await { ...weatherObject.expanded() }
-      if(favoritesStore.isFavorite(city.value)) favoritesStore.updateCityWeather(city.value, weatherObject.shrunkenAdapter(weather.value))
+      if(favoritesStore.isFavorite(town ?? city.value)) favoritesStore.updateCityWeather(town ?? city.value, weatherObject.shrunkenAdapter(weather.value))
       // Promise.allSettled([pollutionAPI.getPollution(city), imageAPI.getImage(city)]).then((values) => console.log(values))
       await getPollution(weather.value?.name)
       await getImage(weather.value?.name)
@@ -55,6 +66,7 @@ import sky from '@/assets/images/cloud-background.mp4'
     })
     .finally(() => {
       city.value = ''
+      router.replace({ path: '/' })
     })
   }
   const getPollution = (town: string) => {
@@ -107,7 +119,7 @@ import sky from '@/assets/images/cloud-background.mp4'
       max-height="100px"
     >
       <v-card-text>
-        <v-form v-model="valid" @submit.prevent="search">
+        <v-form v-model="valid" @submit.prevent="search()">
           <v-row align="center" justify="center" dense>
             <!-- city text field -->
             <v-col cols="10">

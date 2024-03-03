@@ -1,46 +1,35 @@
-# weather
+# Weather Wise
 
-This template should help get you started developing with Vue 3 in Vite.
+A user-friendly web application that offers real-time weather data, allowing users to
+search for any city and get up-to-date information on temperature and air pollution levels.
 
-## Recommended IDE Setup
+---
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur) + [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin).
+### Project Description
 
-## Type Support for `.vue` Imports in TS
+The project is an exercise project to implement the correct architecture for applications developed with the **Vue3** framework.
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin) to make the TypeScript language service aware of `.vue` types.
+In this project, classes called service are used to call APIs by **Axios** library, and classes called model are used to provide additional data as well as required default data.
 
-If the standalone TypeScript plugin doesn't feel fast enough to you, Volar has also implemented a [Take Over Mode](https://github.com/johnsoncodehk/volar/discussions/471#discussioncomment-1361669) that is more performant. You can enable it by the following steps:
+**Pinia** has been used for state management, and the concepts of **composable** and **utils** have also been used.
 
-1. Disable the built-in TypeScript Extension
-    1) Run `Extensions: Show Built-in Extensions` from VSCode's command palette
-    2) Find `TypeScript and JavaScript Language Features`, right click and select `Disable (Workspace)`
-2. Reload the VSCode window by running `Developer: Reload Window` from the command palette.
+The **Vue Router** is used for routing and the concept of **Nested Routes** is used to implement the layout and also the concept of **Navigation Guards**  is used to check the requirements of some routes.
 
-## Customize configuration
+And **Vuetify** material design was also used.
 
-See [Vite Configuration Reference](https://vitejs.dev/config/).
+---
 
-## Project Setup
+### Project Dependencies
 
-```sh
-npm install
-```
+For this project, you need to get api-keys from the three sites I mentioned after, because for the weather data from the [openweathermap.org](https://openweathermap.org/) site API, for pollution data from the [aqicn.org](https://aqicn.org/) site API, and finally to display images from the [serpapi.com](https://serpapi.com/) site API is used, and you need to rewrite your .env file like this:
 
-### Compile and Hot-Reload for Development
+```bash
+VITE_WEATHER_BASE_URL = http://api.openweathermap.org/data/2.5/
+VITE_WEATHER_TOKEN = openweathermap api-key
 
-```sh
-npm run dev
-```
+VITE_POLLUTION_BASE_URL = http://api.waqi.info/
+VITE_POLLUTION_TOKEN = waqi api-key
 
-### Type-Check, Compile and Minify for Production
-
-```sh
-npm run build
-```
-
-### Lint with [ESLint](https://eslint.org/)
-
-```sh
-npm run lint
+VITE_IMAGE_BASE_URL = https://serpapi.com/search.json
+VITE_IMAGE_TOKEN = serpapi api-key
 ```
